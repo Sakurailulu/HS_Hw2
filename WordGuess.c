@@ -256,11 +256,30 @@ int main(int argc, char* argv[]){
                     //if there is any client send invalid guess due to the invalid length
                     //send the error message only to the client with invalid length
                     if(strlen(buffer)!=strlen(SecretWord)){
-                        char message[BUFFER_SIZE];
+                        char message=malloc(BUFFER_SIZE* sizeof(char));
                         strcat(message, "Invalid guess length. The secret word is ");
                         strcat(message, strlen(SecretWord));
                         strcat(message, "letter(s).\n");
-                        send(clients[i].socket_fd,message, sizeof(message),0);
+                        send(clients[i].socket_fd,message, strlen(message),0);
+                    }
+                    //if the client guess the word correctly
+                    else if(strcmp(buffer,SecretWord)==0){
+                        //broadcast the message that one player has guessed the word
+                        char message=malloc(BUFFER_SIZE* sizeof(char));
+                        strcat(message, clients[i].id);
+                        strcat(message,"has correctly the word ")
+                        strcat(message, strlen(SecretWord));
+                        strcat(message, "\n");
+                        for(int index=0;index<MAX_CLIENT;index++){
+                            send(clients[index].socket_fd,message, strlen(message),0);
+                            RemoveClient(index);
+                        }
+                        //disconnect all the players and restart the game
+                        GameSetUp(argv[3],atoi(argv[1]),SecretWord);
+                    }
+                    //the guess word is valid length, but the word itself is not correct
+                    else{
+
                     }
 
                 }
