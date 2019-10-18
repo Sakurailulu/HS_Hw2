@@ -26,7 +26,7 @@ struct TCPclient{
      * enter as id
      */
     int socket_fd;
-    char id[2*BUFFER_SIZE];
+    char id[BUFFER_SIZE];
 
 };
 
