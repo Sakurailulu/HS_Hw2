@@ -101,7 +101,7 @@ int FindClient(char* id,TCPclient* clients){
      */
     int fd=-1;
 
-    for(int i=0;i<MAX_CLIENTS;i++){
+    for(int i=0;i<MAX_CLIENT;i++){
         if(clients[i].socket_fd!=-1&&clients[i].status==1){
             if(strcmp(id,clients[i].id)==0){
                 fd=clients[i].socket_fd;
@@ -120,7 +120,7 @@ int FindClient(char* id,TCPclient* clients){
 int max_socket(const struct client* clients)
 {
     int ans = 0;
-    for (int i=0; i<MAX_CLIENTS; ++i)
+    for (int i=0; i<MAX_CLIENT; ++i)
         if (clients[i].socket > ans)
             ans = clients[i].socket;
     return ans;
@@ -165,7 +165,7 @@ return SecretWord;
      char** dictionary=Read_File(FileName);
      SecretWord=GetSecretWord(dictionary,seed);
      /* initial all the client  */
-     for (int i = 0; i < MAX_CLIENTS; i++) {
+     for (int i = 0; i < MAX_CLIENT; i++) {
         initial_client(&clients[i]);
      }
      printf("Secret word is: %s\n",*SecretWord);
@@ -183,7 +183,7 @@ fd_set selectOnSockets(const struct client* clients, int TCP_fd)
     fd_set set;
     FD_ZERO(&set);
     FD_SET(TCP_fd, &set);
-    for (int i=0; i<MAX_CLIENTS; ++i) {
+    for (int i=0; i<MAX_CLIENT; ++i) {
         if (clients[i].socket_fd != -1) {
             FD_SET(clients[i].socket, &set);
         }
@@ -265,7 +265,7 @@ int CorrectPlaced(const char* guess,const char* SecretWord){
 
 int main(int argc, char* argv[]){
     int  Newsockfd,port;
-    struct TCPclient clients[MAX_CLIENTS];
+    struct TCPclient clients[MAX_CLIENT];
     //if not enough argument has been given
     if(argc<5){
         fprintf(stderr,"ERROR: the correct usage is './word_guess.out [seed] [port] [dictionary_file][longest_word_length]'\n");
