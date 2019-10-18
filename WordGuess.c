@@ -112,6 +112,19 @@ int FindClient(char* id,TCPclient* clients){
 
     return fd;
 }
+/**
+*determine the socket with the largest int value, the function should take in client 
+*which is the array of client structs whose sockets we wish to check
+* and return the int value of the largest socket number in the provided array of sockets
+*/
+int max_socket(const struct client* clients)
+{
+    int ans = 0;
+    for (int i=0; i<MAX_CLIENTS; ++i)
+        if (clients[i].socket > ans)
+            ans = clients[i].socket;
+    return ans;
+}
 
 /**
  * read in the file and store in array
@@ -178,7 +191,9 @@ fd_set selectOnSockets(const struct client* clients, int TCP_fd)
     select(max(max_socket(clients),TCP_fd)+1, &set, NULL, NULL, NULL);
     return set;
 }
-
+/**
+ * function that handle name assigning including check if the name is occupied
+ */
 void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* secretWord){
     //if the name is already taken
     if(FindClient(name,clients)!=-1){
@@ -192,6 +207,7 @@ void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* s
                 );
         send(sender.socket_fd, message, messageLength, 0);
     }
+    //set up the name for client
     else{
         strcpy(sender->id, name);
         char* message = malloc(BUFFER_SIZE*sizeof(char));
@@ -204,6 +220,47 @@ void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* s
     }
 
 
+}
+
+/**
+*function that count how many correct letter is in the guess word compare to the secret word
+*/
+int CorrectLetter(const char* guess, const char* SecretWord){
+
+    int size = strlen(SecretWord);
+    int count = 0;
+    char copy[size];
+    strcpy(copy,SecretWord);
+
+    char guessCopy[size];
+    strcpy(guessCopy,guess);
+
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            if (copy[j] == guessCopy[i] && guessCopy[i] != '\0') {
+                copy[j] = '\0';
+                guessCopy[j] = '\0';
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+
+
+
+/**
+*function that count how many correct placed letter is in the current guess word compare to the secret word
+*/
+int CorrectPlaced(const char* guess,const char* SecretWord){
+    int count=0;
+    for(int i=0;i<strlen(guess);i++){
+        if(SecretWord[i]==guess[i]){
+            count++;
+        }
+    }
+    return count;
 }
 
 int main(int argc, char* argv[]){
@@ -279,7 +336,18 @@ int main(int argc, char* argv[]){
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
-
+                         char message=malloc(BUFFER_SIZE* sizeof(char));
+                        strcat(message, clients[i].id);
+                        strcat(message,"guessed ")
+                        strcat(message, buffer);
+                        strcat(message,": ")
+                        strcat(message, CorrectLetter(buffer,SecretWord));
+                        strcat(message," letter(s) were correct and ");
+                        strcat(message,CorrectPlaced(buffer,SecretWord));
+                        strcat(message," letter(s) were correctly placed.\n");
+                        for(int i=0;i<MAX_CLIENT;i++){
+                            send(clients[i].socket_fd,message,strlen(message),0);
+                        }
                     }
 
                 }
