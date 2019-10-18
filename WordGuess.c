@@ -17,7 +17,7 @@
 #define BUFFER_SIZE 1024
 #define RequestName "Welcome to Guess the Word, Please enter a name\n"
 
-struct TCPclient{
+struct client{
     /**
      * this is the struct to handle the TCP client
      * in this struct it will contain the socket_fd to
@@ -31,18 +31,16 @@ struct TCPclient{
 };
 
 
-void initial_client(struct TCPclient* client){
+void initial_client(struct client* client){
     /**
-     * set all the information in the TCPclient as default
+     * set all the information in the client as default
      * and we can change all the private later according to
-     * the command need
+     * the need
      */
 
     client->socket_fd=-1;
-    memset(client->buffer,0, sizeof(client->buffer));
     memset(client->id,0, sizeof(client->id));
-    client->buffersize= 0;
-    client->status = -1;
+
 
 }
 /**
@@ -59,7 +57,6 @@ int Set_TCP_Socket(int port){
     }
 
     bzero(&server, sizeof(server));
-    port=atoi(argc[2]);
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( port );
@@ -75,7 +72,7 @@ int Set_TCP_Socket(int port){
     }
     return sockfd;
 }
-int ActiveClient(const struct TCPclient* clients){
+int ActiveClient(const struct client* clients){
     int count=0;
     for(int i=0;i<MAX_CLIENT;i++){
         if(clients[i].socket_fd!=-1){
@@ -85,7 +82,7 @@ int ActiveClient(const struct TCPclient* clients){
     return count;
 }
 // a function to remove the client from clients
-void RemoveClient(int index) {
+void RemoveClient(int index,struct client* clients) {
     /**
      * by given the index of clients, we can remove
      * certain client from clients by reset the client
@@ -94,7 +91,7 @@ void RemoveClient(int index) {
     initial_client(&clients[index]);
 }
 //find certain client by id
-int FindClient(char* id,TCPclient* clients){
+int FindClient(char* id,struct client* clients){
     /**
      * this function will return the socket fd of
      * certain client who has certian id
@@ -102,7 +99,7 @@ int FindClient(char* id,TCPclient* clients){
     int fd=-1;
 
     for(int i=0;i<MAX_CLIENT;i++){
-        if(clients[i].socket_fd!=-1&&clients[i].status==1){
+        if(clients[i].socket_fd!=-1){
             if(strcmp(id,clients[i].id)==0){
                 fd=clients[i].socket_fd;
                 break;
@@ -121,8 +118,8 @@ int max_socket(const struct client* clients)
 {
     int ans = 0;
     for (int i=0; i<MAX_CLIENT; ++i)
-        if (clients[i].socket > ans)
-            ans = clients[i].socket;
+        if (clients[i].socket_fd > ans)
+            ans = clients[i].socket_fd;
     return ans;
 }
 
@@ -140,7 +137,7 @@ while(fscanf(fp, "%s", wordBuff) != EOF){
     count++;
     dictionary = realloc(dictionary, (count)*sizeof(*dictionary));
     dictionary[count-1] = malloc(strlen(wordBuff)+1);
-    strcpy(dictionary[*count-1], wordBuff);
+    strcpy(dictionary[count-1], wordBuff);
 }
 
 return dictionary;
@@ -160,7 +157,7 @@ return SecretWord;
  * in this function secret word will be randomly selected and printed out
  * all client will be initialized
  */
- void GameSetUp(char* FileName,int seed,char* SecretWord){
+ void GameSetUp(char* FileName,int seed,char* SecretWord,struct client* clients){
 
      char** dictionary=Read_File(FileName);
      SecretWord=GetSecretWord(dictionary,seed);
@@ -185,7 +182,7 @@ fd_set selectOnSockets(const struct client* clients, int TCP_fd)
     FD_SET(TCP_fd, &set);
     for (int i=0; i<MAX_CLIENT; ++i) {
         if (clients[i].socket_fd != -1) {
-            FD_SET(clients[i].socket, &set);
+            FD_SET(clients[i].socket_fd, &set);
         }
     }
     select(max(max_socket(clients),TCP_fd)+1, &set, NULL, NULL, NULL);
@@ -194,7 +191,7 @@ fd_set selectOnSockets(const struct client* clients, int TCP_fd)
 /**
  * function that handle name assigning including check if the name is occupied
  */
-void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* secretWord){
+void ChangingName(char* name,struct client* clients,struct client* sender,char* secretWord){
     //if the name is already taken
     if(FindClient(name,clients)!=-1){
         char message[1024];
@@ -205,7 +202,7 @@ void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* s
                         "Username %s is already taken, please enter a different username",
                         name
                 );
-        send(sender.socket_fd, message, messageLength, 0);
+        send(sender->socket_fd, message, messageLength, 0);
     }
     //set up the name for client
     else{
@@ -215,7 +212,7 @@ void ChangingName(char* name,TCPclient* clients,struct TCPclient* sender,char* s
         strcat(message, ActiveClient(clients));
         strcat(message, "playing. The secret word is ");
         strcat(message, sizeof(secretWord) );
-        strcat(message, "letter(s).\n")
+        strcat(message, "letter(s).\n");
         send(sender->socket_fd,message, sizeof(message),0);
     }
 
@@ -265,16 +262,16 @@ int CorrectPlaced(const char* guess,const char* SecretWord){
 
 int main(int argc, char* argv[]){
     int  Newsockfd,port;
-    struct TCPclient clients[MAX_CLIENT];
+    struct client clients[MAX_CLIENT];
     //if not enough argument has been given
     if(argc<5){
         fprintf(stderr,"ERROR: the correct usage is './word_guess.out [seed] [port] [dictionary_file][longest_word_length]'\n");
         exit(1);
     }
-    int port = atoi(argv[2]);
+    port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
     char* SecretWord;
-    GameSetUp(argv[3],atoi(argv[1]),SecretWord);
+    GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
@@ -288,14 +285,14 @@ int main(int argc, char* argv[]){
                     if(clients[i].socket_fd<0){
                         fprintf(stderr,"ERROR: Accept failed\n");
                     }
-                    clients[i]->id[0] = '\0';
+                    clients[i].id[0] = '\0';
                     send(clients[i].socket_fd, RequestName, strlen(RequestName), 0);
                     break;
                 }
             }
         }
         for(int i=0;i<MAX_CLIENT;i++){
-            if(clients[i].socket_fd!=-1&&FD_ISSET(clients[i].socket, &fdset)){
+            if(clients[i].socket_fd!=-1&&FD_ISSET(clients[i].socket_fd, &fdset)){
                 char buffer[BUFFER_SIZE];
                 ssize_t countRead=read(clients[i].socket_fd,buffer,BUFFER_SIZE-1);
                 buffer[countRead]='\0';
@@ -306,7 +303,7 @@ int main(int argc, char* argv[]){
                 }
                 //if current client do not have entered id yet, therefore the bytes read here is the name for this client
                 if(clients[i].id=='\0'){
-                    ChangingName(buffer,clients,clients[i],SecretWord);
+                    ChangingName(buffer,clients,&clients[i],SecretWord);
                 }
                 //otherwise the buffer is the guess that received from client
                 else{
@@ -324,23 +321,23 @@ int main(int argc, char* argv[]){
                         //broadcast the message that one player has guessed the word
                         char message=malloc(BUFFER_SIZE* sizeof(char));
                         strcat(message, clients[i].id);
-                        strcat(message,"has correctly the word ")
+                        strcat(message,"has correctly the word ");
                         strcat(message, strlen(SecretWord));
                         strcat(message, "\n");
                         for(int index=0;index<MAX_CLIENT;index++){
                             send(clients[index].socket_fd,message, strlen(message),0);
-                            RemoveClient(index);
+                            RemoveClient(index,clients);
                         }
                         //disconnect all the players and restart the game
-                        GameSetUp(argv[3],atoi(argv[1]),SecretWord);
+                        GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
                          char message=malloc(BUFFER_SIZE* sizeof(char));
                         strcat(message, clients[i].id);
-                        strcat(message,"guessed ")
+                        strcat(message,"guessed ");
                         strcat(message, buffer);
-                        strcat(message,": ")
+                        strcat(message,": ");
                         strcat(message, CorrectLetter(buffer,SecretWord));
                         strcat(message," letter(s) were correct and ");
                         strcat(message,CorrectPlaced(buffer,SecretWord));
