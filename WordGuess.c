@@ -72,6 +72,9 @@ int Set_TCP_Socket(int port){
     }
     return sockfd;
 }
+/**
+* function that count how many client is active
+*/
 int ActiveClient(const struct client* clients){
     int count=0;
     for(int i=0;i<MAX_CLIENT;i++){
@@ -114,9 +117,9 @@ int FindClient(char* id,struct client* clients){
 *which is the array of client structs whose sockets we wish to check
 * and return the int value of the largest socket number in the provided array of sockets
 */
-int max_socket(const struct client* clients)
+int max_socket(const struct client* clients,int TCP_fd)
 {
-    int ans = 0;
+    int ans = TCP_fd;
     for (int i=0; i<MAX_CLIENT; ++i)
         if (clients[i].socket_fd > ans)
             ans = clients[i].socket_fd;
@@ -165,7 +168,7 @@ return SecretWord;
      for (int i = 0; i < MAX_CLIENT; i++) {
         initial_client(&clients[i]);
      }
-     printf("Secret word is: %s\n",*SecretWord);
+     printf("Secret word is: %s\n",SecretWord);
 
  }
 
@@ -185,9 +188,10 @@ fd_set selectOnSockets(const struct client* clients, int TCP_fd)
             FD_SET(clients[i].socket_fd, &set);
         }
     }
-    select(max(max_socket(clients),TCP_fd)+1, &set, NULL, NULL, NULL);
+    select(max_socket(clients,TCP_fd)+1, &set, NULL, NULL, NULL);
     return set;
 }
+
 /**
  * function that handle name assigning including check if the name is occupied
  */
