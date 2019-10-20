@@ -362,19 +362,6 @@ int main(int argc, char* argv[]){
                 else{
                     //if there is any client send invalid guess due to the invalid length
                     //send the error message only to the client with invalid length
-                    char message1[1024];
-                        int message1Length = snprintf
-                        (
-                         message1,
-                         1024,
-                            "buffer is %s, secretword is %s, the length of buffer is %ld, the length of secretword is %ld.",
-                            buffer,
-                            SecretWord,
-                            strlen(buffer),
-                            strlen(SecretWord)
-                         );
-
-                        send(clients[i].socket_fd,message1, message1Length,0);
                     if(strlen(buffer)!=strlen(SecretWord)){
                         char message[1024];
                         int messageLength = snprintf
@@ -392,7 +379,7 @@ int main(int argc, char* argv[]){
                         //broadcast the message that one player has guessed the word
                         char* message=malloc(BUFFER_SIZE* sizeof(char));
                         strcat(message, clients[i].id);
-                        strcat(message,"has correctly guessed the word ");
+                        strcat(message," has correctly guessed the word ");
                         strcat(message, SecretWord);
                         strcat(message, "\n");
                         for(int index=0;index<MAX_CLIENT;index++){
