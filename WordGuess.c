@@ -203,7 +203,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 (
                         message,
                         1024,
-                        "Username %s is already taken, please enter a different username",
+                        "Username %s is already taken, please enter a different username\n",
                         name
                 );
         send(sender->socket_fd, message, messageLength, 0);
@@ -211,13 +211,17 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
     //set up the name for client
     else{
         strcpy(sender->id, name);
-        char* message = malloc(BUFFER_SIZE*sizeof(char));
-        strcpy(message,"There are ");
-        strcat(message, ActiveClient(clients));
-        strcat(message, "playing. The secret word is ");
-        strcat(message, sizeof(secretWord) );
-        strcat(message, "letter(s).\n");
-        send(sender->socket_fd,message, sizeof(message),0);
+        char message[1024];
+        int messageLength = snprintf
+                (
+                        message,
+                        1024,
+                        "There are %d player(s) playing. The secret word is %ld letter(s)\n",
+                        ActiveClient(clients),
+                        sizeof(secretWord)
+                );
+        
+        send(sender->socket_fd,message, messageLength,0);
     }
 
 
@@ -314,11 +318,16 @@ int main(int argc, char* argv[]){
                     //if there is any client send invalid guess due to the invalid length
                     //send the error message only to the client with invalid length
                     if(strlen(buffer)!=strlen(SecretWord)){
-                        char* message=malloc(BUFFER_SIZE* sizeof(char));
-                        strcat(message, "Invalid guess length. The secret word is ");
-                        strcat(message, strlen(SecretWord));
-                        strcat(message, "letter(s).\n");
-                        send(clients[i].socket_fd,message, strlen(message),0);
+                        char message[1024];
+                        int messageLength = snprintf
+                        (
+                         message,
+                         1024,
+                            "Invalid guess length. The secret word is %ld letter(s)\n",
+                            strlen(SecretWord)
+                         );
+
+                        send(clients[i].socket_fd,message, messageLength,0);
                     }
                     //if the client guess the word correctly
                     else if(strcmp(buffer,SecretWord)==0){
@@ -337,17 +346,20 @@ int main(int argc, char* argv[]){
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
-                         char* message=malloc(BUFFER_SIZE* sizeof(char));
-                        strcat(message, clients[i].id);
-                        strcat(message,"guessed ");
-                        strcat(message, buffer);
-                        strcat(message,": ");
-                        strcat(message, CorrectLetter(buffer,SecretWord));
-                        strcat(message," letter(s) were correct and ");
-                        strcat(message,CorrectPlaced(buffer,SecretWord));
-                        strcat(message," letter(s) were correctly placed.\n");
+                        char message[1024];
+                        int messageLength = snprintf
+                        (
+                            message,
+                            1024,
+                            "%s guessed %s : %d letter(s) were correct and %d letters(s) were correctly placed\n",
+                            clients[i].id,
+                            buffer,
+                             CorrectLetter(buffer,SecretWord),
+                             CorrectPlaced(buffer,SecretWord)
+                        );
+            
                         for(int i=0;i<MAX_CLIENT;i++){
-                            send(clients[i].socket_fd,message,strlen(message),0);
+                            send(clients[i].socket_fd,message,messageLength,0);
                         }
                     }
 
