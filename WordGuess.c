@@ -130,7 +130,11 @@ int max_socket(const struct client* clients,int TCP_fd)
  * read in the file and store in array
  * function will return the array in sorted sequence
  */
+<<<<<<< HEAD
 int Read_File(char* FileName,int longest_word_length,char** dictionary){
+=======
+char** Read_File(char* FileName){
+>>>>>>> parent of aa99c3f... longest word length
 //read the file and store in array
 
 int nWords = 0;
@@ -165,6 +169,7 @@ char wordBuff[BUFFER_SIZE];
 
 while(fscanf(fp, "%s", wordBuff) != EOF){
 <<<<<<< HEAD
+<<<<<<< HEAD
     printf("current word is wuwuwu\n");
     if(strlen(wordBuff)>longest_word_length){
         continue;
@@ -181,6 +186,12 @@ while(fscanf(fp, "%s", wordBuff) != EOF){
         dictionary[count-1] = malloc(strlen(wordBuff)+1);
         strcpy(dictionary[count-1], wordBuff);
     }
+=======
+    count++;
+    dictionary = realloc(dictionary, (count)*sizeof(*dictionary));
+    dictionary[count-1] = malloc(strlen(wordBuff)+1);
+    strcpy(dictionary[count-1], wordBuff);
+>>>>>>> parent of aa99c3f... longest word length
 }
 >>>>>>> parent of fb2e8ee... instead of realloc changing a little bit in function loaddict
 
@@ -201,11 +212,18 @@ return SecretWord;
  * in this function secret word will be randomly selected and printed out
  * all client will be initialized
  */
+<<<<<<< HEAD
  void GameSetUp(char* FileName,int longest_word_length ,int seed,char* SecretWord,struct client* clients,char** dictionary){
     printf("I am going to start runing the read_file function here.\n");
      int DictLength=Read_File(FileName,longest_word_length,dictionary);
      printf("I just run the read_file function without problem.\n");
      SecretWord=GetSecretWord(dictionary,seed,DictLength);
+=======
+ void GameSetUp(char* FileName,int seed,char* SecretWord,struct client* clients){
+
+     char** dictionary=Read_File(FileName);
+     SecretWord=GetSecretWord(dictionary,seed);
+>>>>>>> parent of aa99c3f... longest word length
      /* initial all the client  */
      for (int i = 0; i < MAX_CLIENT; i++) {
         initial_client(&clients[i]);
@@ -320,11 +338,16 @@ int main(int argc, char* argv[]){
     }
     port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
+<<<<<<< HEAD
     dictionary=(char**)malloc(1024000*sizeof(char*));
     char SecretWord[atoi(argv[4])+1];
     printf("I am going to setup the game right now.\n");
     GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients,dictionary);
     printf("The secret word is %s\n",SecretWord);
+=======
+    char* SecretWord;
+    GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
+>>>>>>> parent of aa99c3f... longest word length
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
@@ -387,7 +410,11 @@ int main(int argc, char* argv[]){
                             RemoveClient(index,clients);
                         }
                         //disconnect all the players and restart the game
+<<<<<<< HEAD
                         GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients,dictionary);
+=======
+                        GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
+>>>>>>> parent of aa99c3f... longest word length
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
