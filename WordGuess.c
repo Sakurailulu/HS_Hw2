@@ -142,7 +142,7 @@ char word[longest_word_length];
 printf("This is Read_File function, I am going to enter the while loop now\n");
 //printf("%d\n",fscanf(fp, "%s", word));
 while (fscanf(fp, "%s", word) != EOF) {
-    
+    printf("%s\n",word);
     if(strlen(word) > longest_word_length){
         continue;
     }
