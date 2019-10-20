@@ -137,12 +137,13 @@ FILE* fp = fopen(FileName,"r");
 int count=0;
 char wordBuff[BUFFER_SIZE];
 while(fscanf(fp, "%s", wordBuff) != EOF){
-    if(strlen(wordBuff)<longest_word_length){
-            count++;
-        dictionary = realloc(dictionary, (count)*sizeof(*dictionary));
-        dictionary[count-1] = malloc(strlen(wordBuff)+1);
-        strcpy(dictionary[count-1], wordBuff);
+    if(strlen(wordBuff)>longest_word_length){
+        continue;
     }
+    dictionary[count]=malloc(longest_word_length+1);
+    strcpy(dictionary[count],wordBuff);
+    count++;
+    
 }
 
 return dictionary;
