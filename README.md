@@ -1,2 +1,2 @@
 # CSCI4200_Hw2
- Guess
+ Collaboration: Github, DaMin Xu
