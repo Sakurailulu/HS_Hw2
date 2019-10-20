@@ -130,17 +130,19 @@ int max_socket(const struct client* clients,int TCP_fd)
  * read in the file and store in array
  * function will return the array in sorted sequence
  */
-char** Read_File(char* FileName){
+char** Read_File(char* FileName,int longest_word_length){
 //read the file and store in array
 char** dictionary;
 FILE* fp = fopen(FileName,"r");
 int count=0;
 char wordBuff[BUFFER_SIZE];
 while(fscanf(fp, "%s", wordBuff) != EOF){
-    count++;
-    dictionary = realloc(dictionary, (count)*sizeof(*dictionary));
-    dictionary[count-1] = malloc(strlen(wordBuff)+1);
-    strcpy(dictionary[count-1], wordBuff);
+    if(strlen(wordBuff)<longest_word_length){
+            count++;
+        dictionary = realloc(dictionary, (count)*sizeof(*dictionary));
+        dictionary[count-1] = malloc(strlen(wordBuff)+1);
+        strcpy(dictionary[count-1], wordBuff);
+    }
 }
 
 return dictionary;
@@ -160,9 +162,9 @@ return SecretWord;
  * in this function secret word will be randomly selected and printed out
  * all client will be initialized
  */
- void GameSetUp(char* FileName,int seed,char* SecretWord,struct client* clients){
+ void GameSetUp(char* FileName,int longest_word_length ,int seed,char* SecretWord,struct client* clients){
 
-     char** dictionary=Read_File(FileName);
+     char** dictionary=Read_File(FileName,longest_word_length);
      SecretWord=GetSecretWord(dictionary,seed);
      /* initial all the client  */
      for (int i = 0; i < MAX_CLIENT; i++) {
@@ -279,7 +281,7 @@ int main(int argc, char* argv[]){
     port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
     char* SecretWord;
-    GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
+    GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients);
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
@@ -342,7 +344,7 @@ int main(int argc, char* argv[]){
                             RemoveClient(index,clients);
                         }
                         //disconnect all the players and restart the game
-                        GameSetUp(argv[3],atoi(argv[1]),SecretWord,clients);
+                        GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients);
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
