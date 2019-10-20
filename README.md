@@ -1,2 +1,2 @@
 # CSCI4200_Hw2
- Collaboration: Github, DaMin Xu
+ Resource and Collaboration: Github, DaMin Xu
