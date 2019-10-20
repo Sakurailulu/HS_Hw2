@@ -139,19 +139,20 @@ if(fp==NULL){
     printf("I really do not know why the file is not openning.\n");
 }
 char word[longest_word_length];
-printf("This is Read_File function, I am going to enter the while loop now\n");
+//printf("This is Read_File function, I am going to enter the while loop now\n");
 //printf("%d\n",fscanf(fp, "%s", word));
 while (fscanf(fp, "%s", word) != EOF) {
-    printf("%s\n",word);
+    //printf("%s\n",word);
     if(strlen(word) > longest_word_length){
         continue;
     }
-        printf("I do not know, I just pass the if\n");
+       // printf("I do not know, I just pass the if\n");
         dictionary[nWords] = malloc(longest_word_length+1);
-        printf("I just malloc the array\n");
+        //printf("I just malloc the array\n");
         strcpy(dictionary[nWords], word);
         nWords++;
-        printf("%d\n",fscanf(fp, "%s", word));
+        printf("%d\n",nWords);
+        //printf("%d\n",fscanf(fp, "%s", word));
     }
 
 /*
