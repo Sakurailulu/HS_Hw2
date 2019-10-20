@@ -189,16 +189,14 @@ return SecretWord;
  * in this function secret word will be randomly selected and printed out
  * all client will be initialized
  */
- void GameSetUp(char* FileName,int longest_word_length ,int seed,char* SecretWord,struct client* clients,char** dictionary){
+ void GameSetUp(struct client* clients){
     //printf("I am going to start runing the read_file function here.\n");
-     int DictLength=Read_File(FileName,longest_word_length,dictionary);
      //printf("I just run the read_file function without problem.\n");
-     SecretWord=GetSecretWord(dictionary,seed,DictLength);
      /* initial all the client  */
      for (int i = 0; i < MAX_CLIENT; i++) {
         initial_client(&clients[i]);
      }
-     printf("Secret word is: %s\n",SecretWord);
+     //printf("Secret word is: %s, length is %ld\n",SecretWord,strlen(SecretWord));
 
  }
 
@@ -245,8 +243,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
         char message2[1024];
         strcat(message1,"Let's start playing, ");
         strcat(message1,name);
-        strcat(message1,"\n");
-        send(sender->socket_fd,message1, strlen(message1),0);
+        
         int messageLength = snprintf
                 (
                         message2,
@@ -255,7 +252,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                         ActiveClient(clients),
                         strlen(secretWord)
                 );
-        
+        send(sender->socket_fd,message1, strlen(message1),0);
         send(sender->socket_fd,message2, messageLength,0);
     }
 
@@ -314,10 +311,14 @@ int main(int argc, char* argv[]){
     port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
     dictionary=malloc(1024000*sizeof(char*));
-    char SecretWord[atoi(argv[4])+1];
+    char* SecretWord;
+    
     //printf("I am going to setup the game right now.\n");
-    GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients,dictionary);
-   // printf("The secret word is %s\n",SecretWord);
+    GameSetUp(clients);
+
+    int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
+    SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
+    
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
@@ -380,7 +381,9 @@ int main(int argc, char* argv[]){
                             RemoveClient(index,clients);
                         }
                         //disconnect all the players and restart the game
-                        GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients,dictionary);
+                        GameSetUp(clients);
+                        int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
+                        SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
