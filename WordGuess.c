@@ -241,17 +241,22 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
     //set up the name for client
     else{
         strcpy(sender->id, name);
-        char message[1024];
+        char message1[1024];
+        char message2[1024];
+        strcat(message1,"Let's start playing, ");
+        strcat(message1,name);
+        strcat(message1,"\n");
+        send(sender->socket_fd,message1, strlen(message1),0);
         int messageLength = snprintf
                 (
-                        message,
+                        message2,
                         1024,
                         "There are %d player(s) playing. The secret word is %ld letter(s)\n",
                         ActiveClient(clients),
                         strlen(secretWord)
                 );
         
-        send(sender->socket_fd,message, messageLength,0);
+        send(sender->socket_fd,message2, messageLength,0);
     }
 
 
@@ -401,7 +406,7 @@ int main(int argc, char* argv[]){
         }
 
     }
-    for (int i = 0; i < sizeof(dictionary); ++i){
+    for (int i = 0; i < 1024000; ++i){
         free(dictionary[i]);
     }
     free(dictionary);
