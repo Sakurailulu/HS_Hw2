@@ -231,7 +231,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 (
                         message,
                         1024,
-                        "Username %s is already taken, please enter a different username\n",
+                        "Username %s is already taken, please enter a different username",
                         name
                 );
         send(sender->socket_fd, message, messageLength, 0);
@@ -244,17 +244,17 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 (
                         message,
                         1024,
-                        "Let's start playing, %s\n",
+                        "Let's start playing, %s",
                         name
                 );
         send(sender->socket_fd, message, messageLength, 0);  
-        free(message);  
-        char message[1024];
-        int messageLength = snprintf
+        memset(message,0, sizeof(message)); 
+        message[1024];
+        messageLength = snprintf
                 (
                         message,
                         1024,
-                        "There are %d player(s) playing. The secret word is %ld letter(s)\n",
+                        "There are %d player(s) playing. The secret word is %ld letter(s)",
                         ActiveClient(clients),
                         strlen(secretWord)
                 );
@@ -324,7 +324,7 @@ int main(int argc, char* argv[]){
 
     int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
     SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
-    
+    SecretWord[strlen(SecretWord)]='\0';
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
@@ -362,13 +362,26 @@ int main(int argc, char* argv[]){
                 else{
                     //if there is any client send invalid guess due to the invalid length
                     //send the error message only to the client with invalid length
+                    char message1[1024];
+                        int message1Length = snprintf
+                        (
+                         message1,
+                         1024,
+                            "buffer is %s, secretword is %s, the length of buffer is %d, the length of secretword is %d.",
+                            buffer,
+                            SecretWord,
+                            strlen(buffer),
+                            strlen(SecretWord)
+                         );
+
+                        send(clients[i].socket_fd,message, messageLength,0);
                     if(strlen(buffer)!=strlen(SecretWord)){
                         char message[1024];
                         int messageLength = snprintf
                         (
                          message,
                          1024,
-                            "Invalid guess length. The secret word is %ld letter(s).\n",
+                            "Invalid guess length. The secret word is %ld letter(s).",
                             strlen(SecretWord)
                          );
 
@@ -379,7 +392,7 @@ int main(int argc, char* argv[]){
                         //broadcast the message that one player has guessed the word
                         char* message=malloc(BUFFER_SIZE* sizeof(char));
                         strcat(message, clients[i].id);
-                        strcat(message,"has correctly the word ");
+                        strcat(message,"has correctly guessed the word ");
                         strcat(message, SecretWord);
                         strcat(message, "\n");
                         for(int index=0;index<MAX_CLIENT;index++){
@@ -390,6 +403,7 @@ int main(int argc, char* argv[]){
                         GameSetUp(clients);
                         int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
                         SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
+                        SecretWord[strlen(SecretWord)]='\0';
                     }
                     //the guess word is valid length, but the word itself is not correct
                     else{
@@ -398,7 +412,7 @@ int main(int argc, char* argv[]){
                         (
                             message,
                             1024,
-                            "%s guessed %s : %d letter(s) were correct and %d letters(s) were correctly placed\n",
+                            "%s guessed %s : %d letter(s) were correct and %d letters(s) were correctly placed",
                             clients[i].id,
                             buffer,
                              CorrectLetter(buffer,SecretWord),
