@@ -138,20 +138,23 @@ FILE* fp = fopen(FileName, "r");
 if(fp==NULL){
     printf("I really do not know why the file is not openning.\n");
 }
-char word[longest_word_length];
+char word[longest_word_length+1];
 //printf("This is Read_File function, I am going to enter the while loop now\n");
 //printf("%d\n",fscanf(fp, "%s", word));
 while (fscanf(fp, "%s", word) != EOF) {
-    //printf("%s\n",word);
+    
     if(strlen(word) > longest_word_length){
         continue;
     }
        // printf("I do not know, I just pass the if\n");
-        dictionary[nWords] = malloc(longest_word_length+1);
-        //printf("I just malloc the array\n");
-        strcpy(dictionary[nWords], word);
-        nWords++;
-        printf("%d\n",nWords);
+        ++nWords;
+        dictionary = realloc(dictionary, nWords*sizeof(*dictionary));
+        dictionary[nWords-1] = malloc(strlen(word)+1);
+        strcpy(dictionary[nWords-1], word);
+
+        printf("%d    %s\n",nWords,word);
+      
+        
         //printf("%d\n",fscanf(fp, "%s", word));
     }
 
@@ -307,7 +310,7 @@ int main(int argc, char* argv[]){
     }
     port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
-    dictionary=malloc(1024000*sizeof(char*));
+    dictionary=(char**)malloc(1024000*sizeof(char*));
     char SecretWord[atoi(argv[4])+1];
     printf("I am going to setup the game right now.\n");
     GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients,dictionary);
@@ -400,7 +403,7 @@ int main(int argc, char* argv[]){
         }
 
     }
-    for (int i = 0; i < sizeof(dictionary); ++i){
+    for (int i = 0; i < 1024000; i++){
         free(dictionary[i]);
     }
     free(dictionary);
