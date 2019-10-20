@@ -306,7 +306,7 @@ int main(int argc, char* argv[]){
                     clients[i].socket_fd = -1;
                 }
                 //if current client do not have entered id yet, therefore the bytes read here is the name for this client
-                if(clients[i].id=='\0'){
+                if(clients[i].id[0]=='\0'){
                     ChangingName(buffer,clients,&clients[i],SecretWord);
                 }
                 //otherwise the buffer is the guess that received from client
