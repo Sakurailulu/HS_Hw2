@@ -99,7 +99,6 @@ int FindClient(char* id,struct client* clients){
             }
         }
     }
-
     return fd;
 }
 /**
