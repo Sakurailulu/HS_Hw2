@@ -254,7 +254,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 (
                         message,
                         1024,
-                        "There are %d player(s) playing. The secret word is %ld letter(s)",
+                        "There are %d player(s) playing. The secret word is %ld letter(s).",
                         ActiveClient(clients),
                         strlen(secretWord)
                 );
@@ -323,7 +323,8 @@ int main(int argc, char* argv[]){
     GameSetUp(clients);
 
     int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
-    SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
+    srand(seed);
+    SecretWord=dictionary[rand()%DictLength];
     SecretWord[strlen(SecretWord)]='\0';
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
@@ -389,7 +390,7 @@ int main(int argc, char* argv[]){
                         //disconnect all the players and restart the game
                         GameSetUp(clients);
                         int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
-                        SecretWord=GetSecretWord(dictionary,atoi(argv[1]),DictLength);
+                        strcpy(SecretWord,dictionary[rand()%DictLength]);
                         SecretWord[strlen(SecretWord)]='\0';
                     }
                     //the guess word is valid length, but the word itself is not correct
@@ -399,7 +400,7 @@ int main(int argc, char* argv[]){
                         (
                             message,
                             1024,
-                            "%s guessed %s : %d letter(s) were correct and %d letters(s) were correctly placed",
+                            "%s guessed %s: %d letter(s) were correct and %d letter(s) were correctly placed.",
                             clients[i].id,
                             buffer,
                              CorrectLetter(buffer,SecretWord),
