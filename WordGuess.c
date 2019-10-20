@@ -133,20 +133,40 @@ int max_socket(const struct client* clients,int TCP_fd)
 char** Read_File(char* FileName,int longest_word_length){
 //read the file and store in array
 char** dictionary;
+
+int nWords = 0;
+FILE* fp = fopen(FileName, "r");
+if(fp==NULL){
+    printf("I really do not know why the file is not openning.\n");
+}
+char word[longest_word_length];
+printf("This is Read_File function, I am going to enter the while loop now\n");
+
+while (fscanf(fp, "%s", word) != EOF) {
+    if(strlen(word) > longest_word_length)
+        continue;
+        dictionary[nWords] = malloc(longest_word_length+1);
+        strcpy(dictionary[nWords], word);
+        nWords++;
+    }
+
+/*
 FILE* fp = fopen(FileName,"r");
 int count=0;
 char wordBuff[BUFFER_SIZE];
+
 while(fscanf(fp, "%s", wordBuff) != EOF){
+    printf("current word is wuwuwu\n");
     if(strlen(wordBuff)>longest_word_length){
         continue;
     }
+    
     dictionary[count]=malloc(longest_word_length+1);
     strcpy(dictionary[count],wordBuff);
-    count++;
-    
-}
+    count++; 
+}*/
 
-return dictionary;
+return dictionary; 
 }
 
 /**
@@ -164,8 +184,9 @@ return SecretWord;
  * all client will be initialized
  */
  void GameSetUp(char* FileName,int longest_word_length ,int seed,char* SecretWord,struct client* clients){
-
+    printf("I am going to start runing the read_file function here.\n");
      char** dictionary=Read_File(FileName,longest_word_length);
+     printf("I just run the read_file function without problem.\n");
      SecretWord=GetSecretWord(dictionary,seed);
      /* initial all the client  */
      for (int i = 0; i < MAX_CLIENT; i++) {
@@ -282,7 +303,9 @@ int main(int argc, char* argv[]){
     port = atoi(argv[2]);
     int TCP_fd = Set_TCP_Socket(port);
     char* SecretWord;
+    printf("I am going to setup the game right now.\n");
     GameSetUp(argv[3],atoi(argv[4]),atoi(argv[1]),SecretWord,clients);
+    printf("The secret word is %s\n",SecretWord);
     while(true){
         fd_set fdset = selectOnSockets(clients, TCP_fd);
         if (FD_ISSET(TCP_fd,&fdset)){
