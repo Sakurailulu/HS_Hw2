@@ -348,7 +348,7 @@ int main(int argc, char* argv[]){
             if(clients[i].socket_fd!=-1&&FD_ISSET(clients[i].socket_fd, &fdset)){
                 char buffer[BUFFER_SIZE];
                 ssize_t countRead=read(clients[i].socket_fd,buffer,BUFFER_SIZE-1);
-                buffer[countRead]='\0';
+                buffer[countRead-1]='\0';
                 if(countRead==0){
                     printf("%s (socket %d) has disconnected\n", clients[i].id, clients[i].socket_fd);
                     close(clients[i].socket_fd);
