@@ -282,7 +282,7 @@ int CorrectLetter(const char* guess, const char* SecretWord){
         for (int j = 0; j < size; ++j) {
             if (copy[j] == guessCopy[i] && guessCopy[i] != '\0') {
                 copy[j] = '\0';
-                guessCopy[j] = '\0';
+                guessCopy[i] = '\0';
                 count++;
             }
         }
@@ -384,8 +384,11 @@ int main(int argc, char* argv[]){
                         strcat(message, SecretWord);
                         strcat(message, "\n");
                         for(int index=0;index<MAX_CLIENT;index++){
-                            send(clients[index].socket_fd,message, strlen(message),0);
-                            RemoveClient(index,clients);
+                            if(clients[index].id[0]!='\0'){
+                                send(clients[index].socket_fd,message, strlen(message),0);
+                                RemoveClient(index,clients);
+                            }
+                            
                         }
                         //disconnect all the players and restart the game
                         GameSetUp(clients);
@@ -408,7 +411,9 @@ int main(int argc, char* argv[]){
                         );
             
                         for(int i=0;i<MAX_CLIENT;i++){
-                            send(clients[i].socket_fd,message,messageLength,0);
+                            if(clients[i].id[0]!='\0'){
+                                send(clients[i].socket_fd,message,messageLength,0);
+                            }
                         }
                     }
 
