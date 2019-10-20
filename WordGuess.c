@@ -323,7 +323,7 @@ int main(int argc, char* argv[]){
     GameSetUp(clients);
 
     int DictLength=Read_File(argv[3],atoi(argv[4]),dictionary);
-    srand(seed);
+    srand(atoi(argv[1]));
     SecretWord=dictionary[rand()%DictLength];
     SecretWord[strlen(SecretWord)]='\0';
     while(true){
