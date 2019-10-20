@@ -240,11 +240,16 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
     else{
         strcpy(sender->id, name);
         char message1[1024];
+        int message1Length = snprintf
+                (
+                        message1,
+                        1024,
+                        "Let's start playing, %s\n",
+                        name
+                );
+        send(sender->socket_fd, message1, message1Length, 0);    
         char message2[1024];
-        strcat(message1,"Let's start playing, ");
-        strcat(message1,name);
-        
-        int messageLength = snprintf
+        int message2Length = snprintf
                 (
                         message2,
                         1024,
@@ -252,8 +257,8 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                         ActiveClient(clients),
                         strlen(secretWord)
                 );
-        send(sender->socket_fd,message1, strlen(message1),0);
-        send(sender->socket_fd,message2, messageLength,0);
+        
+        send(sender->socket_fd,message2, message2Length,0);
     }
 
 
