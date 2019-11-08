@@ -244,10 +244,13 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 (
                         message,
                         1024,
-                        "Let's start playing, %s",
-                        name
+                        "Let's start playing, %s\nThere are %d player(s) playing. The secret word is %ld letter(s).\n",
+                        name,
+                        ActiveClient(clients),
+                        strlen(secretWord)
                 );
         send(sender->socket_fd, message, messageLength, 0);  
+        /*
         memset(message,0, sizeof(message)); 
         message[1024];
         messageLength = snprintf
@@ -260,6 +263,7 @@ void ChangingName(char* name,struct client* clients,struct client* sender,char* 
                 );
         
         send(sender->socket_fd,message, messageLength,0);
+        */
     }
 
 
