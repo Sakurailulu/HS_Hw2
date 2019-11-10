@@ -17,3 +17,14 @@ the final recipient. (No cycle). if ties, choose lexicographically smaller ID
 
 ASSUME: all given ID exist
 Clients will not disconnect until the end of the progam.
+
+
+
+sensor to sensor:
+	1. within distance, directly delivered. sensor-CONTROL-sensor
+	2. out of distance, but can be delivered thru another sensor.
+	   sensor-CONTROL-sensor-CONTROL-sensor
+
+	3. out of distance, has to go thru base station. 
+	    1. check all in-range, find the one closest to destination. Go.
+	    Repeat this step. Mark visited B.S/Sensor, don't cause circle.
