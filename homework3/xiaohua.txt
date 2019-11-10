@@ -1,0 +1,19 @@
+
+CONTROL server can reach any base stations, sensors
+SENSOR can move around a 2D space,  has a maximum communication range
+Base Stations do not run any program
+
+relay TCP messages between sensors -> CONTROL 
+messages between base stations [linked]-> CONTROL
+
+base station -> sensor . Sender: server. Receiver: sensor
+base station communicate with sensor : infinity range
+
+base station / sensor wants to send a msg:
+1. check if recepient in range. If yes, send directly.
+								If no, check all in-range sensors and base stations
+by distance to the destination. Then send msg to b.s/sensor with lowest distance to
+the final recipient. (No cycle). if ties, choose lexicographically smaller ID
+
+ASSUME: all given ID exist
+Clients will not disconnect until the end of the progam.
