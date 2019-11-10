@@ -31,3 +31,14 @@ void initial_Station(struct BaseStation* Station){
 	ListofLinks=malloc(102400*sizeof(char*));
 	visited=false;
 }
+/**
+*function to find certain basestation with given ID
+**/
+struct BaseStation findStation(char* id,struct BaseStation* Stations,int length){
+for(int i=0;i<length;i++){
+	if(strcmp(id,Stations[i].id)==0){
+		return Stations[i];
+	}
+}
+
+}
