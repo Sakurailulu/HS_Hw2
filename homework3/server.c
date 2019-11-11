@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <stdbool.h>
+#include <errno.h>
 #include <string.h>
 #include <sys/select.h>
 #include <time.h>
@@ -18,7 +19,7 @@
  * build the structure as BaseStation
  */
 struct BaseStation{
-    char[BUFFER_SIZE] ID;
+    char ID[BUFFER_SIZE];
     float XPos;
     float YPos;
     int NumLinks;
@@ -72,7 +73,7 @@ int ReadStation(char* file,struct BaseStation[] BaseStations){
     }
 
     char[BUFFER_SIZE] line;
-    int index=0
+    int index=0;
     while (fgets(line,BUFFER_SIZE,fp)) {
        BaseStations[index]=LoadStation(line);
        index++;
