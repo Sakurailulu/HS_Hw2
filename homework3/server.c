@@ -12,7 +12,7 @@
 #include <stdarg.h>
 #include <math.h>
 
-#include "BaseStation.h"
+
 #define BUFFER_SIZE 1024
 /**
  * build the structure as BaseStation
@@ -149,6 +149,12 @@ return sqrt((x1-x2)^2+(y1-y2)^2);
 }
 
 int main(int argc,char* argv[]){
+    // prepare base info
+    if (argc != 3){
+        perror("ERROR: Wrong arguments\n");
+        perror("./server.out <controlPort> <baseFile>\n");
+        exit(EXIT_FAILURE);
+    }
 	struct BaseStation[] BaseStations;
 	int port=atoi(argv[1]);
 	char* file=argv[2];
