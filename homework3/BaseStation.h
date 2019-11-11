@@ -24,13 +24,14 @@ struct BaseStation{
 *initialized the BaseStation
 */
 void initial_Station(struct BaseStation* Station){
-	memset(client->id,0, sizeof(client->id));
+	memset(Station->ID,0, sizeof(Station->ID));
 	XPos=0;
 	YPos=0;
 	NumLinks=0;
 	ListofLinks=malloc(102400*sizeof(char*));
 	visited=false;
 }
+
 /**
 *function to find certain basestation with given ID
 **/
@@ -40,5 +41,16 @@ for(int i=0;i<length;i++){
 		return Stations[i];
 	}
 }
-
+}
+void setID(char* id){
+	ID=id;
+}
+void setX(float x){
+	XPos=x;
+}
+void setY(float y){
+	YPos=y;
+}
+void SetNumLinks(int n){
+	NumLinks=n;
 }
