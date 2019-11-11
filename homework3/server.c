@@ -47,31 +47,64 @@ void initial_Station(struct BaseStation* Station){
  */
 int Set_Socket(int port){
     //create the socket and return error message if socket creation failed
+    /*
     int sockfd;
-    struct sockaddr_in* server;
-    sockfd=socket(AF_INET,SOCK_STREAM,0);
+    struct sockaddr_in server;
+    sockfd=socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);;
     if(sockfd<0){
         fprintf(stderr,"ERROR: socket creation failed\n");
         exit(EXIT_FAILURE);
     }
-
-    bzero(&server, sizeof(server));
-    server->sin_family = AF_INET;
-    server->sin_addr.s_addr = INADDR_ANY;
-    server->sin_port = htons( port );
+    printf("Socketfd: %d \n",sockfd);
+     bzero(&server, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( port );
+    printf("Socketfd: %d \n",sockfd);
     //bind the socket and return error message if socket binding failed
-    if(bind(sockfd, (struct sockaddr *)&server, sizeof(server))<0){
-        fprintf(stderr,"ERROR: socket bining failed\n");
+    if(bind(sockfd, (struct sockaddr *)server, sizeof(server))<0){
+    	
+        fprintf(stderr,"ERROR: socket binding failed\n");
         exit(EXIT_FAILURE);
     }
-    /*
+    printf("Tanjiro\n");
+
+
+    
+
+    
     //listen for connection and return error message if any error occur
-    if (listen(sockfd,1) < 0) {
+    if (listen(sockfd,5) < 0) {
         perror("ERROR: socket listening failed\n");
         exit(EXIT_FAILURE);
     }
-     */
+    
     return sockfd;
+    */
+     struct sockaddr_in server;
+    bzero(&server, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( port );
+    int sock;
+    sock=socket(AF_INET, SOCK_STREAM, 0);
+    if(sock<0){
+        perror("MAIN: ERROR while creating TCP socket");
+        exit(EXIT_FAILURE);
+    }
+    int on = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    
+    if(bind(sock, (struct sockaddr *)&server, sizeof(server))<0){
+        perror("MAIN: ERROR while binding tcp port");
+        exit(EXIT_FAILURE);
+    }
+    //listen for all 32 clients
+    if (listen(sock, 10) < 0) {
+        perror("MAIN: ERROR while listening tcp port");
+        exit(EXIT_FAILURE);
+    }
+    return sock;
 }
 /**
  * helper function to store information from line into basestation
@@ -176,6 +209,7 @@ int main(int argc,char* argv[]){
 	int port=atoi(argv[1]);
 	char* file=argv[2];
 	int socket_fd=Set_Socket(port);
+	printf("Set socket\n");
 	int NumStations=ReadStation(file,BaseStations);
 	return 0;
 
