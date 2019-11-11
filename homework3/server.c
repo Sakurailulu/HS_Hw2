@@ -82,7 +82,7 @@ int Set_Socket(int port){
     char* word;
     int count=0;
     for(int i=0;i<strlen(line);i++){
-        if(line[i]==" "||line[i]=="\n"){
+        if( strcmp(&line[i]," ") == 0 || strcmp(&line[i],"\n") == 0){
             if(count==0){
                 strcat(station.ID,word);
             }
@@ -104,7 +104,7 @@ int Set_Socket(int port){
                 }
             }
             count++;
-            memset(word,0, sizeof(word));
+            memset(word,0, sizeof(char*));
         }
         else{
             strcat(word,&line[i]);
