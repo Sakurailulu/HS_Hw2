@@ -20,3 +20,7 @@ struct MsgFormat{
 	char** ListofLinks;
 	
 };
+
+struct MsgFormat* newMsg(){
+	
+}
