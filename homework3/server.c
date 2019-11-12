@@ -134,7 +134,7 @@ int Set_Socket(int port){
  */
  struct BaseStation LoadStation(char* line){
     struct BaseStation station; 
-    printf("line 114 is good\n");
+    printf("line 137 is good\n");
     initial_Station(&station);
     //printf("line 116 is good\n");
     char word[BUFFER_SIZE];
@@ -181,7 +181,9 @@ printf("current line: %s\n",line);
                     	printf("current j: %d\n",j);
                     	station.ListofLinks[j] = (char*)malloc(sizeof(char));
                         strcpy(station.ListofLinks[j],word);
+                     
                         printf("%s\n",station.ListofLinks[j]);
+                   
                         break;
                     }
                 }
@@ -224,15 +226,15 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
 
     char line[BUFFER_SIZE];
     int index=0;
-    printf("line 163 is good\n");
+    printf("line 229 is good\n");
     while (fgets(line,BUFFER_SIZE,fp) != NULL) {
-        printf("line 165 is good\n");
+        printf("line 231 is good\n");
         BaseStations[index]=LoadStation(line);
-        printf("line 167 is good\n");
+        printf("line 233 is good\n");
         index++;
     }
     fclose(fp);
-    printf("line 170 is good\n");
+    printf("line 237 is good\n");
     return index;
  }
 
