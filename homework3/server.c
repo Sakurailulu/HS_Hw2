@@ -46,6 +46,12 @@ void initial_Station(struct BaseStation* Station){
   * @param station
   */
 void freeStation(struct BaseStation* station){
+    // free(station->ID);
+    // for (int i = 0; i < station->NumLinks; ++i){
+    //     free(station->ListofLinks[i]);
+    // }
+    // free(station->ListofLinks);
+    // free(station);
     initial_Station(station);
 }
 /**
@@ -70,40 +76,6 @@ void printBase(struct BaseStation* station){
  */
 int Set_Socket(int port){
     //create the socket and return error message if socket creation failed
-    /*
-    int sockfd;
-    struct sockaddr_in server;
-    sockfd=socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);;
-    if(sockfd<0){
-        fprintf(stderr,"ERROR: socket creation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Socketfd: %d \n",sockfd);
-     bzero(&server, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons( port );
-    printf("Socketfd: %d \n",sockfd);
-    //bind the socket and return error message if socket binding failed
-    if(bind(sockfd, (struct sockaddr *)server, sizeof(server))<0){
-    	
-        fprintf(stderr,"ERROR: socket binding failed\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Tanjiro\n");
-
-
-    
-
-    
-    //listen for connection and return error message if any error occur
-    if (listen(sockfd,5) < 0) {
-        perror("ERROR: socket listening failed\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    return sockfd;
-    */
      struct sockaddr_in server;
     bzero(&server, sizeof(server));
     server.sin_family = AF_INET;
@@ -264,8 +236,8 @@ int main(int argc,char* argv[]){
 
 
 	for(int i=0;i<NumStations;i++){
-		freeStation(&BaseStations[i]);
-	}
+	 	freeStation(&BaseStations[i]);
+	 }
 	return 0;
 
 }
