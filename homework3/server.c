@@ -116,10 +116,20 @@ int Set_Socket(int port){
     printf("line 116 is good\n");
     char* word;
     int count=0;
+    int temp=0;
+
+    for(int j=0;j<strlen(line);j++){
+        if(temp == 0){
+            printf("%s\n",&line[j]);
+            temp++;
+        }
+
+    }
+
     for(int i=0;i<strlen(line);i++){
         printf("line 120 is good\n");
         if( strcmp(&line[i]," ") == 0 || strcmp(&line[i],"\n") == 0){
-            printf("%s\n",&line[i]);
+            //printf("%s\n",&line[i]);
             if(count==0){
                 strcat(station.ID,word);
             }
