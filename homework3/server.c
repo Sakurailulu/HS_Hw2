@@ -130,11 +130,12 @@ printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
         //printf("line 120 is good\n");
 
-        if( strcmp(&line[i]," ") == 0 || strcmp(&line[i],"\n") == 0){
+        if( line[i]==' ' || line[i]=='\n'){
             //printf("%s\n",&line[i]);
-            printf(" word %s, i is %d\n",word,i);
+            //printf(" word %s, i is %d\n",word,i);
+            printf("I am here, i is %d\n",i);
             if(count==0){
-            	printf("count==0: word %s\n",word);
+            	//printf("count==0: word %s\n",word);
                 strcat(station.ID,word);
             }
             else if(count==1){
@@ -157,13 +158,16 @@ printf("current line: %s\n",line);
             count++;
             //printf("line 144 is good\n");
             memset(word,0, sizeof(char*));
+            temp=0;
             //printf("line 146 is good\n");
         }
         else{
             //printf("line 149 is good\n");
             //printf("%s\n",word);
             //printf("%s\n",&line[i]);
-            strcat(word,&line[i]);
+            word[temp]=line[i];
+            temp++;
+            printf("current word is %s\n",word);
             //printf("line 153 is good\n");
         }
     }
