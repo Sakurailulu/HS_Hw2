@@ -143,42 +143,33 @@ int Set_Socket(int port){
     if(line[strlen(line)-1]!='\n'){
     	strcat(line,"\n");
     }
-/*
-    for(int j=0;j<strlen(line);j++){
-        if(temp == 0){
-            printf("%s\n",&line[j]);
-            temp++;
-        }
-
-    }
-    */
 //printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
         //printf("int i is %d,left line is %s\n",i,&line[i]);
 
         if( line[i]==' '|| line[i]=='\n'){
             //printf("%s\n",&line[i]);
-            printf(" word %s, count is %d\n",word,count);
+           // printf(" word %s, count is %d\n",word,count);
             
             if(count==0){
-            	printf("count==0: word %s\n",word);
-                strcat(station.ID,word);
+            	//printf("count==0: word %s\n",word);
+                strcpy(station.ID,word);
             }
             else if(count==1){
-            	printf("count==1: word %s\n",word);
+            	//printf("count==1: word %s\n",word);
                 station.XPos=atof(word);
             }
             else if(count==2){
-            	printf("count==2: word %s\n",word);
+            	//printf("count==2: word %s\n",word);
                 station.YPos=atof(word);
             }
             else if(count==3){
-            	printf("count==3: word %s\n",word);
+            	//printf("count==3: word %s\n",word);
                 station.NumLinks=atoi(word);
                 station.ListofLinks=(char**)malloc(station.NumLinks*sizeof(char*));
             }
             else{
-            	printf("count==4: word %s\n",word);
+            	//printf("count==4: word %s\n",word);
                 for(int j=0;j<station.NumLinks;j++){
                     if(!station.ListofLinks[j]){
                     	//printf("current j: %d\n",j);
@@ -190,7 +181,7 @@ int Set_Socket(int port){
                         break;
                     }
                 }
-                printf("I am here\n");
+                //printf("I am here\n");
             }
             count++;
             //printf("line 144 is good\n");
@@ -211,8 +202,8 @@ int Set_Socket(int port){
 
 
     }
-    printf("Right before return\n");
-    printBase(&station);
+    //printf("Right before return\n");
+    //printBase(&station);
     return station;
  }
 /**
@@ -265,6 +256,16 @@ int main(int argc,char* argv[]){
 	int socket_fd=Set_Socket(port);
 	printf("Set socket\n");
 	int NumStations=ReadStation(file,BaseStations);
+	for(int i=0;i<NumStations;i++){
+		printBase(&BaseStations[i]);
+	}
+
+
+
+
+	for(int i=0;i<NumStations;i++){
+		freeStation(&BaseStations[i]);
+	}
 	return 0;
 
 }
