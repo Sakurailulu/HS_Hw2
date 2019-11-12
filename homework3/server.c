@@ -115,6 +115,7 @@ int Set_Socket(int port){
     if(line[strlen(line)-1]!='\n'){
     	strcat(line,"\n");
     }
+    int curr=0;
 //printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
         //printf("int i is %d,left line is %s\n",i,&line[i]);
@@ -142,17 +143,14 @@ int Set_Socket(int port){
             }
             else{
             	//printf("count==4: word %s\n",word);
-                for(int j=0;j<station.NumLinks;j++){
-                    if(!station.ListofLinks[j]){
+            	
+                
                     	//printf("current j: %d\n",j);
-                    	station.ListofLinks[j] = (char*)malloc(sizeof(char));
-                        strcpy(station.ListofLinks[j],word);
+                    	station.ListofLinks[curr] = (char*)malloc(sizeof(char));
+                        strcpy(station.ListofLinks[curr],word);
                      
-                        //printf("%s\n",station.ListofLinks[j]);
-                   
-                        break;
-                    }
-                }
+                        printf("%s\n",station.ListofLinks[curr]);
+                        curr++;
                 //printf("I am here\n");
             }
             count++;
