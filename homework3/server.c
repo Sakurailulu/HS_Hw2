@@ -46,12 +46,6 @@ void initial_Station(struct BaseStation* Station){
   * @param station
   */
 void freeStation(struct BaseStation* station){
-    // free(station->ID);
-    // for (int i = 0; i < station->NumLinks; ++i){
-    //     free(station->ListofLinks[i]);
-    // }
-    // free(station->ListofLinks);
-    // free(station);
     initial_Station(station);
 }
 /**
@@ -106,9 +100,7 @@ int Set_Socket(int port){
  */
  struct BaseStation LoadStation(char* line){
     struct BaseStation station; 
-    printf("line 137 is good\n");
     initial_Station(&station);
-    //printf("line 116 is good\n");
     char word[BUFFER_SIZE];
     int count=0;
     int temp=0;
@@ -116,64 +108,39 @@ int Set_Socket(int port){
     	strcat(line,"\n");
     }
     int curr=0;
-//printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
-        //printf("int i is %d,left line is %s\n",i,&line[i]);
-
         if( line[i]==' '|| line[i]=='\n'){
-            //printf("%s\n",&line[i]);
-           // printf(" word %s, count is %d\n",word,count);
-            
             if(count==0){
-            	//printf("count==0: word %s\n",word);
                 strcpy(station.ID,word);
             }
             else if(count==1){
-            	//printf("count==1: word %s\n",word);
                 station.XPos=atof(word);
             }
             else if(count==2){
-            	//printf("count==2: word %s\n",word);
                 station.YPos=atof(word);
             }
             else if(count==3){
-            	//printf("count==3: word %s\n",word);
                 station.NumLinks=atoi(word);
                 station.ListofLinks=(char**)malloc(station.NumLinks*sizeof(char*));
             }
             else{
-            	//printf("count==4: word %s\n",word);
-            	
-                
-                    	//printf("current j: %d\n",j);
                     	station.ListofLinks[curr] = (char*)malloc(sizeof(char));
                         strcpy(station.ListofLinks[curr],word);
-                     
-                        printf("%s\n",station.ListofLinks[curr]);
                         curr++;
-                //printf("I am here\n");
+             
             }
             count++;
-            //printf("line 144 is good\n");
-
             memset(word,0, sizeof(char*));
             temp=0;
-           // printf("line 146 is good %s\n",&line[i]);
+           
         }
         else{
-            //printf("line 149 is good\n");
-            //printf("%s\n",word);
-            //printf("%s\n",&line[i]);
             word[temp]=line[i];
             temp++;
-            //printf("current word is %s\n",word);
-            //printf("line 153 is good\n");
         }
 
 
     }
-    //printf("Right before return\n");
-    //printBase(&station);
     return station;
  }
 /**
@@ -191,15 +158,11 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
 
     char line[BUFFER_SIZE];
     int index=0;
-    printf("line 229 is good\n");
     while (fgets(line,BUFFER_SIZE,fp) != NULL) {
-        printf("line 231 is good\n");
         BaseStations[index]=LoadStation(line);
-        printf("line 233 is good\n");
         index++;
     }
     fclose(fp);
-    printf("line 237 is good\n");
     return index;
  }
 
@@ -224,7 +187,6 @@ int main(int argc,char* argv[]){
 	int port=atoi(argv[1]);
 	char* file=argv[2];
 	int socket_fd=Set_Socket(port);
-	printf("Set socket\n");
 	int NumStations=ReadStation(file,BaseStations);
 	for(int i=0;i<NumStations;i++){
 		printBase(&BaseStations[i]);
@@ -233,9 +195,9 @@ int main(int argc,char* argv[]){
 
 
 
-	for(int i=0;i<NumStations;i++){
-	 	freeStation(&BaseStations[i]);
-	 }
+	// for(int i=0;i<NumStations;i++){
+	//  	freeStation(&BaseStations[i]);
+	//  }
 	return 0;
 
 }
