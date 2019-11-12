@@ -247,7 +247,7 @@ int main(int argc,char* argv[]){
         perror("./server.out <controlPort> <baseFile>\n");
         exit(EXIT_FAILURE);
     }
-	struct BaseStation* BaseStations;
+	struct BaseStation* BaseStations=(struct BaseStation*)malloc(64 * sizeof(struct BaseStation));
 	int port=atoi(argv[1]);
 	char* file=argv[2];
 	int socket_fd=Set_Socket(port);
