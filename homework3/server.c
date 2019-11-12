@@ -57,7 +57,7 @@ void printBase(struct BaseStation* station){
     printf("\tlocate at (%f, %f)\n", station->XPos, station->YPos);
     printf("\twith %d linked bases\n", station->NumLinks);
     for (int i = 0; i < station->NumLinks; i++){
-    	printf("i %d\n",i);
+    	//printf("i %d\n",i);
 
         printf("%s\n", station->ListofLinks[i]);
     }
