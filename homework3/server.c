@@ -140,6 +140,9 @@ int Set_Socket(int port){
     char word[BUFFER_SIZE];
     int count=0;
     int temp=0;
+    if(line[strlen(line)-1]!='\n'){
+    	strcat(line,"\n");
+    }
 /*
     for(int j=0;j<strlen(line);j++){
         if(temp == 0){
@@ -149,13 +152,13 @@ int Set_Socket(int port){
 
     }
     */
-printf("current line: %s\n",line);
+//printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
-        //printf("line 120 is good\n");
+        //printf("int i is %d,left line is %s\n",i,&line[i]);
 
         if( line[i]==' '|| line[i]=='\n'){
             //printf("%s\n",&line[i]);
-            //printf(" word %s, i is %d\n",word,i);
+            printf(" word %s, count is %d\n",word,count);
             
             if(count==0){
             	printf("count==0: word %s\n",word);
@@ -178,11 +181,11 @@ printf("current line: %s\n",line);
             	printf("count==4: word %s\n",word);
                 for(int j=0;j<station.NumLinks;j++){
                     if(!station.ListofLinks[j]){
-                    	printf("current j: %d\n",j);
+                    	//printf("current j: %d\n",j);
                     	station.ListofLinks[j] = (char*)malloc(sizeof(char));
                         strcpy(station.ListofLinks[j],word);
                      
-                        printf("%s\n",station.ListofLinks[j]);
+                        //printf("%s\n",station.ListofLinks[j]);
                    
                         break;
                     }
@@ -191,9 +194,10 @@ printf("current line: %s\n",line);
             }
             count++;
             //printf("line 144 is good\n");
+
             memset(word,0, sizeof(char*));
             temp=0;
-            printf("line 146 is good\n");
+           // printf("line 146 is good %s\n",&line[i]);
         }
         else{
             //printf("line 149 is good\n");
