@@ -130,36 +130,41 @@ printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
         //printf("line 120 is good\n");
 
-        if( line[i]==' ' || line[i]=='\n'){
+        if( line[i]==' '|| line[i]=='\n'){
             //printf("%s\n",&line[i]);
             //printf(" word %s, i is %d\n",word,i);
-            printf("I am here, i is %d\n",i);
+            
             if(count==0){
-            	//printf("count==0: word %s\n",word);
+            	printf("count==0: word %s\n",word);
                 strcat(station.ID,word);
             }
             else if(count==1){
+            	printf("count==1: word %s\n",word);
                 station.XPos=atof(word);
             }
             else if(count==2){
+            	printf("count==2: word %s\n",word);
                 station.YPos=atof(word);
             }
             else if(count==3){
+            	printf("count==3: word %s\n",word);
                 station.NumLinks=atoi(word);
                 station.ListofLinks=(char**)malloc(station.NumLinks*sizeof(char*));
             }
             else{
+            	printf("count==4: word %s\n",word);
                 for(int j=0;j<station.NumLinks;j++){
                     if(!station.ListofLinks[j]){
                         station.ListofLinks[j]=word;
                     }
                 }
+                printf("I am here\n");
             }
             count++;
             //printf("line 144 is good\n");
             memset(word,0, sizeof(char*));
             temp=0;
-            //printf("line 146 is good\n");
+            printf("line 146 is good\n");
         }
         else{
             //printf("line 149 is good\n");
@@ -167,10 +172,13 @@ printf("current line: %s\n",line);
             //printf("%s\n",&line[i]);
             word[temp]=line[i];
             temp++;
-            printf("current word is %s\n",word);
+            //printf("current word is %s\n",word);
             //printf("line 153 is good\n");
         }
+
+
     }
+    printf("Right before return\n");
     return station;
  }
 /**
