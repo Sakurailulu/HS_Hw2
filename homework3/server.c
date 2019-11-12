@@ -33,6 +33,7 @@ struct Client{
 	char* ID;
 	float XPos;
 	float YPos;
+	int Range;
 	char* Buffer;
 	struct DataMessage* Message;
 };
