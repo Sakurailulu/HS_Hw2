@@ -56,8 +56,10 @@ void printBase(struct BaseStation* station){
     printf("BaseStation with ID[%s]\n", station->ID);
     printf("\tlocate at (%f, %f)\n", station->XPos, station->YPos);
     printf("\twith %d linked bases\n", station->NumLinks);
-    for (int i = 0; i < station->NumLinks; ++i){
-        printf("\t\t%s\n", station->ListofLinks[i]);
+    for (int i = 0; i < station->NumLinks; i++){
+    	printf("i %d\n",i);
+
+        printf("%s\n", station->ListofLinks[i]);
     }
     printf("\n");
 }
@@ -176,7 +178,11 @@ printf("current line: %s\n",line);
             	printf("count==4: word %s\n",word);
                 for(int j=0;j<station.NumLinks;j++){
                     if(!station.ListofLinks[j]){
-                        station.ListofLinks[j]=word;
+                    	printf("current j: %d\n",j);
+                    	station.ListofLinks[j] = (char*)malloc(sizeof(char));
+                        strcpy(station.ListofLinks[j],word);
+                        printf("%s\n",station.ListofLinks[j]);
+                        break;
                     }
                 }
                 printf("I am here\n");
