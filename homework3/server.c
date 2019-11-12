@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #include <math.h>
-
+#include "DataMessage.h"
 
 #define BUFFER_SIZE 1024
 /**
@@ -27,6 +27,14 @@ struct BaseStation{
     int NumLinks;
     char** ListofLinks;
     bool visited;
+};
+
+struct Client{
+	char* ID;
+	float XPos;
+	float YPos;
+	char* Buffer;
+	struct DataMessage* Message;
 };
 
 /**

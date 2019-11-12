@@ -27,5 +27,17 @@
         NewMessage->hopList[i] = (char*)malloc(BUFFER_SIZE*sizeof(char));
 	}
 	return NewMessage;
+ }
 
+
+ void freeDataMessage(struct DataMessage* Message){
+
+ 	free(Message->OriginID);
+    free(Message->NextID);
+    free(Message->DestinationID);
+    for (int i = 0; i < 2*BUFFER_SIZE; ++i){
+        free(Message->HopList[i]);
+    }
+    free(Message->HopList);
+    free(Message);
  }
