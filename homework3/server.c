@@ -40,6 +40,27 @@ void initial_Station(struct BaseStation* Station){
 	Station->ListofLinks=malloc(102400*sizeof(char*));
 	Station->visited=false;
 }
+
+ /**
+  * free the memory of Base station
+  * @param station
+  */
+void freeStation(struct BaseStation* station){
+    initial_Station(station);
+}
+/**
+ * print out all the information in given Base station
+ * @param base station
+ */
+void printBase(struct BaseStation* station){
+    printf("BaseStation with ID[%s]\n", station->ID);
+    printf("\tlocate at (%f, %f)\n", station->XPos, station->YPos);
+    printf("\twith %d linked bases\n", station->NumLinks);
+    for (int i = 0; i < station->NumLinks; ++i){
+        printf("\t\t%s\n", station->ListofLinks[i]);
+    }
+    printf("\n");
+}
 /**
  * setup the tcp socket and binding. This function will
  *fprintf any error which happened during the creating and binding
@@ -179,6 +200,7 @@ printf("current line: %s\n",line);
 
     }
     printf("Right before return\n");
+    printBase(&station);
     return station;
  }
 /**
@@ -208,26 +230,6 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
     return index;
  }
 
- /**
-  * free the memory of Base station
-  * @param station
-  */
-void freeStation(struct BaseStation* station){
-    initial_Station(station);
-}
-/**
- * print out all the information in given Base station
- * @param base station
- */
-void printBase(struct BaseStation* station){
-    printf("BaseStation with ID[%s]\n", station->ID);
-    printf("\tlocate at (%f, %f)\n", station->XPos, station->YPos);
-    printf("\twith %d linked bases\n", station->NumLinks);
-    for (int i = 0; i < station->NumLinks; ++i){
-        printf("\t\t%s\n", station->ListofLinks[i]);
-    }
-    printf("\n");
-}
 
 /**
 *helper function to calculate the distance between two point 
