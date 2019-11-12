@@ -158,13 +158,17 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
         exit(EXIT_FAILURE);
     }
 
-    char* line;
+    char line[BUFFER_SIZE];
     int index=0;
-    while (fgets(line,BUFFER_SIZE,fp)) {
-       BaseStations[index]=LoadStation(line);
-       index++;
+    printf("line 163 is good\n");
+    while (fgets(line,BUFFER_SIZE,fp) != NULL) {
+        printf("line 165 is good\n");
+        BaseStations[index]=LoadStation(line);
+        printf("line 167 is good\n");
+        index++;
     }
     fclose(fp);
+    printf("line 170 is good\n");
     return index;
  }
 
