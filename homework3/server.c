@@ -113,11 +113,11 @@ int Set_Socket(int port){
     struct BaseStation station; 
     printf("line 114 is good\n");
     initial_Station(&station);
-    printf("line 116 is good\n");
-    char* word;
+    //printf("line 116 is good\n");
+    char word[BUFFER_SIZE];
     int count=0;
     int temp=0;
-
+/*
     for(int j=0;j<strlen(line);j++){
         if(temp == 0){
             printf("%s\n",&line[j]);
@@ -125,12 +125,16 @@ int Set_Socket(int port){
         }
 
     }
-
+    */
+printf("current line: %s\n",line);
     for(int i=0;i<strlen(line);i++){
-        printf("line 120 is good\n");
+        //printf("line 120 is good\n");
+
         if( strcmp(&line[i]," ") == 0 || strcmp(&line[i],"\n") == 0){
             //printf("%s\n",&line[i]);
+            printf(" word %s, i is %d\n",word,i);
             if(count==0){
+            	printf("count==0: word %s\n",word);
                 strcat(station.ID,word);
             }
             else if(count==1){
@@ -151,16 +155,16 @@ int Set_Socket(int port){
                 }
             }
             count++;
-            printf("line 144 is good\n");
+            //printf("line 144 is good\n");
             memset(word,0, sizeof(char*));
-            printf("line 146 is good\n");
+            //printf("line 146 is good\n");
         }
         else{
-            printf("line 149 is good\n");
-            printf("%s\n",word);
-            printf("%s\n",&line[i]);
+            //printf("line 149 is good\n");
+            //printf("%s\n",word);
+            //printf("%s\n",&line[i]);
             strcat(word,&line[i]);
-            printf("line 153 is good\n");
+            //printf("line 153 is good\n");
         }
     }
     return station;
