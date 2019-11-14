@@ -29,15 +29,6 @@ struct BaseStation{
     bool visited;
 };
 
-struct Client{
-	char* ID;
-	float XPos;
-	float YPos;
-	int Range;
-	char* Buffer;
-	struct DataMessage* Message;
-};
-
 /**
 *initialized the BaseStation
 */
@@ -48,14 +39,6 @@ void initial_Station(struct BaseStation* Station){
 	Station->NumLinks=0;
 	Station->ListofLinks=malloc(102400*sizeof(char*));
 	Station->visited=false;
-}
-
- /**
-  * free the memory of Base station
-  * @param station
-  */
-void freeStation(struct BaseStation* station){
-    initial_Station(station);
 }
 /**
  * print out all the information in given Base station
@@ -72,37 +55,13 @@ void printBase(struct BaseStation* station){
     }
     printf("\n");
 }
-/**
- * setup the tcp socket and binding. This function will
- *fprintf any error which happened during the creating and binding
- * and the function will return the sockfd
- */
-int Set_Socket(int port){
-    //create the socket and return error message if socket creation failed
-     struct sockaddr_in server;
-    bzero(&server, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons( port );
-    int sock;
-    sock=socket(AF_INET, SOCK_STREAM, 0);
-    if(sock<0){
-        perror("MAIN: ERROR while creating TCP socket");
-        exit(EXIT_FAILURE);
-    }
-    int on = 1;
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    
-    if(bind(sock, (struct sockaddr *)&server, sizeof(server))<0){
-        perror("MAIN: ERROR while binding tcp port");
-        exit(EXIT_FAILURE);
-    }
-    //listen for all 32 clients
-    if (listen(sock, 10) < 0) {
-        perror("MAIN: ERROR while listening tcp port");
-        exit(EXIT_FAILURE);
-    }
-    return sock;
+
+ /**
+  * free the memory of Base station
+  * @param station
+  */
+void freeStation(struct BaseStation* station){
+    initial_Station(station);
 }
 /**
  * helper function to store information from line into basestation
@@ -174,6 +133,70 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
     fclose(fp);
     return index;
  }
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+struct Client{
+	char* ID;
+	float XPos;
+	float YPos;
+	int Range;
+	char* Buffer;
+	struct DataMessage* Message;
+};
+/**
+ *initialize an fd set with a list of ports, as well as stdin
+ * the function will take in two parameter:
+ * clients is the array of client structs whose ports we wish to listen to in the fd set set
+ * TCP_fd is  the fd set to initialize
+*/
+fd_set selectOnSockets(const struct client* clients, int TCP_fd)
+{
+    fd_set set;
+    FD_ZERO(&set);
+    FD_SET(TCP_fd, &set);
+    for (int i=0; i<MAX_CLIENT; ++i) {
+        if (clients[i].socket_fd != -1) {
+            FD_SET(clients[i].socket_fd, &set);
+        }
+    }
+    select(max_socket(clients,TCP_fd)+1, &set, NULL, NULL, NULL);
+    return set;
+}
+
+/**
+ * setup the tcp socket and binding. This function will
+ *fprintf any error which happened during the creating and binding
+ * and the function will return the sockfd
+ */
+int Set_Socket(int port){
+    //create the socket and return error message if socket creation failed
+     struct sockaddr_in server;
+    bzero(&server, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( port );
+    int sock;
+    sock=socket(AF_INET, SOCK_STREAM, 0);
+    if(sock<0){
+        perror("MAIN: ERROR while creating TCP socket");
+        exit(EXIT_FAILURE);
+    }
+    int on = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    
+    if(bind(sock, (struct sockaddr *)&server, sizeof(server))<0){
+        perror("MAIN: ERROR while binding tcp port");
+        exit(EXIT_FAILURE);
+    }
+    //listen for all 32 clients
+    if (listen(sock, 10) < 0) {
+        perror("MAIN: ERROR while listening tcp port");
+        exit(EXIT_FAILURE);
+    }
+    return sock;
+}
+
 
 
 /**
