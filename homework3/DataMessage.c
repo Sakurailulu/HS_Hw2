@@ -19,7 +19,7 @@
 *function to initialized the message so that we can modify the varibles in the function later 
 *without any uninitialized error
 */
- struct DataMessage* initMessage(){
+ struct DataMessage* initial_Message(){
  	struct NewMessage*=(struct DataMessage*)malloc(sizeof(struct DataMessage));
  	NewMessage->OriginID=(char*)malloc(BUFFER_SIZE*sizeof(char));
  	NewMessage->NextID=(char*)malloc(BUFFER_SIZE*sizeof(char));
@@ -34,7 +34,7 @@
 /*
 *function to load an initialized data message from message
 */
- void loadDataMessage(char* message, struct DataMessage* dataMessage){   
+ void LoadMessage(char* message, struct DataMessage* dataMessage){   
     char word[BUFFER_SIZE];
     int count=0;
     int temp=0;

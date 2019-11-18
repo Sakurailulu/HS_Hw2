@@ -24,8 +24,8 @@ struct DataMessage{
  int HopListLength;
  char** HopList;
 }
-struct DataMessage* initMessage();
-void loadMessage(char* message, int size, struct DataMessage* data);
+struct DataMessage* initial_Message();
+void LoadMessage(char* message, int size, struct DataMessage* data);
 // load dataMessage from received text
 void convertMessage(struct DataMessage* data, char* message);
 // convert dataMessage to text form

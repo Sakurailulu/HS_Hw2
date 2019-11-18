@@ -21,7 +21,7 @@
 */
 void initial_client(struct Client client){
         clients[i].ID = (char*)malloc(BUFFER_SIZE * sizeof(char));
-        clients[i].sockfd = -1;
+        clients[i].socket_fd = -1;
         clients[i].XPos = -1;
         clients[i].YPos = -1;
         clients[i].Range=-1;

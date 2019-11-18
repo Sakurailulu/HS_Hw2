@@ -212,10 +212,71 @@ int main(int argc,char* argv[]){
     int child_pid = fork();
     if(child_pid==0){
         //use child to handle the process for TCP server
+        while(1){
+             fd_set Clients_fd = selectOnSockets(clients, serverSd);
+             bool find=false;
+            if (FD_ISSET(serverSd, &fdClients)){
+                for(int i=0;i<MAX_USER_NUM;i++){
+                    if(clients[i].socket_fd<0){
+                        clients[i].socket_fd=accept(serverSd, (struct sockaddr *) &server,&sizeof(struct sockaddr_in));
+                        if(clients[i].socket_fd<0){
+                            fprintf(stderr,"ERROR: Accept failed\n");
+                        }
+                        clients[i].id[0] = '\0';
+                        break;
+                    }
+                }
+                if(!find){
+                    printf("Current client array is full\n");
+                }
+
+            }
+        }
+        for (int i = 0; i < MAX_USER_NUM; i++){
+            if(clients[i]->socket_fd!=-1&&FD_ISSET(clients[i]->socket_fd, &fdset)){
+               // handle each connection
+                printf("CONTROL: clientSd is %d\n", currentClient->clientSd);
+                //###############################################################
+                //###############################################################
+                //待补充
+            }
+        }
+
 
     }
+
+    
     else{
         //use the parent to handle the output to terminal
+        char command[BUFFER_SIZE];
+        while(TRUE){
+              printf("Please Enter command here: ");
+            if(fgets(command, sizeof(command), stdin) == NULL){
+                //continue getting command from stdin
+                continue;
+            }
+            command[strlen(command)-1] = '\0';
+            //printf("Entered command: %s\n", command);
+            if(strcmp(command, "QUIT") == 0){
+                printf("CONTROL: terminate tcp server on %d\n", child_pid);
+                kill(child_pid,SIGKILL);
+                printf("CONTROL: terminate the main process\n");
+                break;
+            }
+            // other commands:
+            else{
+                struct DataMessage* message = initial_Message();
+                int success = sendData(command, nBase, baseList, clients, message);
+                if(success == 0){
+                    printf("CONTROL: Invalid Command\n");
+                }else{
+                    char* Message=malloc(BUFFER_SIZE*sizeof(char));
+                    ConvertMessage(message, Message);
+                    printf("NEW DataMessage:\n\t%s\n",Message);
+                }
+
+            }
+        }
 
     }
  
@@ -223,7 +284,7 @@ int main(int argc,char* argv[]){
 
 
 
-    /*
+    
 	 for(int i=0;i<NumStations;i++){
 	 	freeStation(&BaseStations[i]);
 	 }
@@ -233,7 +294,7 @@ int main(int argc,char* argv[]){
      }
      free(clients);
 
-     */
+     
 	return 0;
 
 }

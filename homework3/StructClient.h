@@ -23,7 +23,7 @@ struct Client{
 	float XPos;
 	float YPos;
 	float Range;
-    int sockfd;
+    int socket_fd;
 };
 void initial_client(struct Client client);
 void free_client(struct Client client);
