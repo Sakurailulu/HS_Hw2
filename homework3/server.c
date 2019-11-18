@@ -17,6 +17,7 @@
 #include "DataMessage.h"
 
 #define BUFFER_SIZE 1024
+#define MAX_USER_NUM 64
 /**
  * build the structure as BaseStation
  */
@@ -140,10 +141,23 @@ struct Client{
 	char* ID;
 	float XPos;
 	float YPos;
-	int Range;
-	char* Buffer;
-	struct DataMessage* Message;
+    int sockfd;
 };
+/**
+*helper function to initialize the client
+*/
+void initial_client(struct Client client){
+        clients[i].ID = (char*)malloc(BUFFER_SIZE * sizeof(char));
+        clients[i].sockfd = -1;
+        clients[i].XPos = -1;
+        clients[i].YPos = -1;
+}
+/*
+*function to free client after used
+*/
+void free_client(struct Client client){
+    initial_client(client);
+}
 /**
  *initialize an fd set with a list of ports, as well as stdin
  * the function will take in two parameter:
@@ -220,16 +234,48 @@ int main(int argc,char* argv[]){
 	char* file=argv[2];
 	int socket_fd=Set_Socket(port);
 	int NumStations=ReadStation(file,BaseStations);
+    /*
 	for(int i=0;i<NumStations;i++){
 		printBase(&BaseStations[i]);
 	}
+    */
+    /* Create the listener socket as TCP socket (SOCK_STREAM) */
+    struct sockaddr_in server;
+    int serverSd = initServer(&server, port);
+ 
+    // array of client structure
+    struct Client* clients = (Client*)malloc(MAX_USER_NUM * sizeof(struct Client));
+    for (int i = 0; i < MAX_USER_NUM; ++i){
+        initial_client(clients[i]);
+    }
+
+    unsigned int length = sizeof(struct sockaddr_in);
+ 
+    int child_pid = fork();
+    if(child_pid==0){
+        //use child to handle the process for TCP server
+
+    }
+    else{
+        //use the parent to handle the output to terminal
+
+    }
+ 
 
 
 
 
-	// for(int i=0;i<NumStations;i++){
-	//  	freeStation(&BaseStations[i]);
-	//  }
+    /*
+	 for(int i=0;i<NumStations;i++){
+	 	freeStation(&BaseStations[i]);
+	 }
+     free(BaseStation);
+     for(int i=0;i<MAX_USER_NUM;i++){
+        free_client(clients[i]);
+     }
+     free(clients);
+
+     */
 	return 0;
 
 }
