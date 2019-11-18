@@ -102,7 +102,9 @@ void ConvertMessage(struct DataMessage* dataMessage, char* message){
     }
     strcat(message, Buffer);
 }
-
+/*
+*helper function to free the memeory in datamessage
+*/
 
  void freeDataMessage(struct DataMessage* Message){
 
