@@ -83,7 +83,7 @@ void freePoint(struct Point* point){
     free(point->ID);
     free(point);
 }
-void freePoint(struct Point** point, int length){
+void freePoints(struct Point** point, int length){
     for(int i = 0;i<length;i++){
         freePoint(points[i]);
     }
