@@ -55,13 +55,11 @@
                 strcpy(dataMessage.NextID,word);
             }
             else if(count==3){
-                strcpy(dataMessage.destinationID,word);
-        
-                
+                strcpy(dataMessage.destinationID,word);    
             }
             else if(count==4){
                 dataMessage.HopListLength=atoi(word);
-                station.ListofLinks=(char**)malloc(station.HopListLength*sizeof(char*));
+                dataMessage.ListofLinks=(char**)malloc(dataMessage.HopListLength*sizeof(char*));
             }
             else{
                         dataMessage.HopList[curr] = (char*)malloc(sizeof(char));
