@@ -16,26 +16,26 @@
 
 #define BUFFER_SIZE 1024
 
-
 /**
 *initialized the point and set memory
 */
 struct Point* initial_point(){
-	struct Point* point=(Point*)malloc(sizeof(struct Point));
-	point->ID=malloc(BUFFER_SIZE*sizeof(char));
-	point->XPos=-1;
-	point->YPos=-1;
-	point->isBaseStation=false;
+    struct Point* point=(Point*)malloc(sizeof(struct Point));
+    point->ID=malloc(BUFFER_SIZE*sizeof(char));
+    point->XPos=-1;
+    point->YPos=-1;
+    point->isBaseStation=false;
 }
 /**
 *convert string of reachable to an array of Point
 *
 */
-int loadNode(char* message,struct Point** points){
+int loadPoint(char* message,struct Point** points){
 //REACHABLE [NumReachable] [ReachableList]([ID] [XPosition] [YPosition]) 
     char word[BUFFER_SIZE];
     int count=0;
     int temp=0;
+    int innercount=0;
     int NumReachable=0;
     if(message[strlen(message)-1]!='\n'){
         strcat(message,"\n");
@@ -52,23 +52,42 @@ int loadNode(char* message,struct Point** points){
                 points=(struct Points**)malloc(NumReachable*sizeof(struct Point*));
             }
             else{
+                    if(innercount==0){
                         points[curr] = initial_point();
-                        points[curr]
+                    }
+                    innercount++;
+                    else if(innercount==1){
+                        strcpy(points[curr]->ID,word);
+                    }
+                    else if(innercount==2){
+                        points[curr]->XPos=atof(word);
+                    }
+                    else{
+                        points[curr]->YPos=atof(word);
+                        innercount=0;
                         curr++;
-             
+                    }                         
             }
             count++;
             memset(word,0, sizeof(char*));
-            temp=0;
-           
+            temp=0;           
         }
         else{
             word[temp]=message[i];
             temp++;
         }
-
-
     }
+    return NumReachable;
+}
+void freePoint(struct Point* point){
+    free(point->ID);
+    free(point);
+}
+void freePoint(struct Point** point, int length){
+    for(int i = 0;i<length;i++){
+        freePoint(points[i]);
+    }
+    free(points);
 }
 
 
