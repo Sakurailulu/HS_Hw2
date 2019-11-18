@@ -12,15 +12,11 @@
 #include <stdarg.h>
 #include <math.h>
 #include "DataMessage.h"
+#include "point.h"
 
 #define BUFFER_SIZE 1024
 
-struct Point{
-	char* ID;
-	float XPos;
-	float YPos;
-	bool isBaseStation;
-};
+
 /**
 *initialized the point and set memory
 */
