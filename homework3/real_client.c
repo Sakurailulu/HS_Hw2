@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include "StructClient.h"
 #define MAX 1024
 //from our lab6 code
 
@@ -111,6 +112,8 @@ int main(int argc, char *argv[]){
         perror("Connect to server failed.\n");
         exit(EXIT_FAILURE);
     }
+
+    
 
 
 

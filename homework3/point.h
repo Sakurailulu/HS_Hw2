@@ -23,8 +23,9 @@ struct Point{
 };
 
 struct Point* initial_point();
-int loadPoint(char* message,struct Point** points);
+struct Point** loadPoint(char* message,int* NumReachable);
 void freePoint(struct Point* point);
 void freePoints(struct Point** point, int length);
+
 
 
