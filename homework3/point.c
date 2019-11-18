@@ -30,7 +30,7 @@ struct Point* initial_point(){
 *convert string of reachable to an array of Point
 *
 */
-int loadPoint(char* message,struct Point** points){
+struct Point** loadPoint(char* message,int* NumReachable){
 //REACHABLE [NumReachable] [ReachableList]([ID] [XPosition] [YPosition]) 
     char word[BUFFER_SIZE];
     int count=0;
@@ -46,19 +46,19 @@ int loadPoint(char* message,struct Point** points){
             if(count==0){
                 count++;
                 memset(word,0, sizeof(char*));
-            	temp=0;  
+                temp=0;  
                 continue;
             }
             else if(count==1){
-                NumReachable=atoi(word);
-                points=(struct Points**)malloc(NumReachable*sizeof(struct Point*));
+                NumReachable=&atoi(word);
+                struct Point** points=(struct Points**)malloc(NumReachable*sizeof(struct Point*));
             }
             else{
                     if(innercount==0){
                         points[curr] = initial_point();
                     }
-                    innercount++;
-                    else if(innercount==1){
+                    innercount++; 
+                    if(innercount==1){
                         strcpy(points[curr]->ID,word);
                     }
                     else if(innercount==2){
@@ -68,7 +68,8 @@ int loadPoint(char* message,struct Point** points){
                         points[curr]->YPos=atof(word);
                         innercount=0;
                         curr++;
-                    }                         
+                    }  
+
             }
             count++;
             memset(word,0, sizeof(char*));
@@ -79,7 +80,7 @@ int loadPoint(char* message,struct Point** points){
             temp++;
         }
     }
-    return NumReachable;
+    return points;
 }
 void freePoint(struct Point* point){
     free(point->ID);

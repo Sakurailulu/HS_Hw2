@@ -35,12 +35,12 @@ struct BaseStation{
 *initialized the BaseStation
 */
 void initial_Station(struct BaseStation* Station){
-	memset(Station->ID,0, sizeof(Station->ID));
-	Station->XPos=0;
-	Station->YPos=0;
-	Station->NumLinks=0;
-	Station->ListofLinks=malloc(102400*sizeof(char*));
-	Station->visited=false;
+    memset(Station->ID,0, sizeof(Station->ID));
+    Station->XPos=0;
+    Station->YPos=0;
+    Station->NumLinks=0;
+    Station->ListofLinks=malloc(102400*sizeof(char*));
+    Station->visited=false;
 }
 /**
  * print out all the information in given Base station
@@ -51,7 +51,7 @@ void printBase(struct BaseStation* station){
     printf("\tlocate at (%f, %f)\n", station->XPos, station->YPos);
     printf("\twith %d linked bases\n", station->NumLinks);
     for (int i = 0; i < station->NumLinks; i++){
-    	//printf("i %d\n",i);
+        //printf("i %d\n",i);
 
         printf("%s\n", station->ListofLinks[i]);
     }
@@ -75,7 +75,7 @@ void freeStation(struct BaseStation* station){
     int count=0;
     int temp=0;
     if(line[strlen(line)-1]!='\n'){
-    	strcat(line,"\n");
+        strcat(line,"\n");
     }
     int curr=0;
     for(int i=0;i<strlen(line);i++){
@@ -94,7 +94,7 @@ void freeStation(struct BaseStation* station){
                 station.ListofLinks=(char**)malloc(station.NumLinks*sizeof(char*));
             }
             else{
-                    	station.ListofLinks[curr] = (char*)malloc(sizeof(char));
+                        station.ListofLinks[curr] = (char*)malloc(sizeof(char));
                         strcpy(station.ListofLinks[curr],word);
                         curr++;
              
@@ -189,6 +189,8 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
     // return 3 if cannot find next legal client
     int flag= 0;
     char word[BUFFER_SIZE];
+    char origin[BUFFER_SIZE];
+    char destination[BUFFER_SIZE];
     int count=0;
     int temp=0;
     if(command[strlen(command)-1]!='\n'){
@@ -204,60 +206,28 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
                 }
             }
             else if(count==1){
-                strcpy(dataMessage.OriginID,word);
+                strcpy(origin,word);
             }
             else if(count==2){
-                strcpy(dataMessage.NextID,word);
-            }
-            else if(count==3){
-                strcpy(dataMessage.destinationID,word);    
-            }
-            else if(count==4){
-                dataMessage.HopListLength=atoi(word);
-                dataMessage.ListofLinks=(char**)malloc(dataMessage.HopListLength*sizeof(char*));
-            }
-            else{
-                        dataMessage.HopList[curr] = (char*)malloc(sizeof(char));
-                        strcpy( dataMessage.HopList[curr],word);
-                        curr++;
-             
+                strcpy(destination,word);
             }
             count++;
             memset(word,0, sizeof(char*));
-            temp=0;
-           
+            temp=0;           
         }
         else{
-            word[temp]=message[i];
+            word[temp]=command[i];
             temp++;
         }
-
-
-    int* spaceList = getAllSpace(command, strlen(command));
-    if (spaceList[0] == -1){
-        return msgFlag;
     }
-    char origin[BUFFER_SIZE];
-    char dest[BUFFER_SIZE];
-
-    substr(command, 0, spaceList[0], origin);
-    
-    if(strcmp(origin, "SENDDATA") != 0)
-        return msgFlag;
-    
-    substr(command, spaceList[0]+1, spaceList[1], origin);
-    substr(command, spaceList[1]+1, strlen(command), dest);
-    free(spaceList);
-    // printf("COMMAND: SENDDATA %s %s\n", origin, dest );
-    strcpy(message->originID, origin);
-    strcpy(message->destinationID, dest);
-    strcpy(message->nextID, "123");
-
+    strcpy(message->OriginID,origin);
+    strcpy(message->DestinationID,destination);
+    strcpy(message->NextID,"default");
     if (strcmp(origin, "CONTROL") == 0){
-        msgFlag = 1;
-        message->hopListLength = 0;
+        flag= 0;
+        message->HopListLength = 0;
     }else{
-        msgFlag = 3;
+         flag= 3;
         for (int i = 0; i < nBase; ++i){
             if (strcmp(dest, baseList[i]->baseID) == 0){
                 msgFlag = 2;
@@ -441,15 +411,15 @@ int main(int argc,char* argv[]){
         perror("./server.out <controlPort> <baseFile>\n");
         exit(EXIT_FAILURE);
     }
-	struct BaseStation* BaseStations=(struct BaseStation*)malloc(64 * sizeof(struct BaseStation));
-	int port=atoi(argv[1]);
-	char* file=argv[2];
-	int socket_fd=Set_Socket(port);
-	int NumStations=ReadStation(file,BaseStations);
+    struct BaseStation* BaseStations=(struct BaseStation*)malloc(64 * sizeof(struct BaseStation));
+    int port=atoi(argv[1]);
+    char* file=argv[2];
+    int socket_fd=Set_Socket(port);
+    int NumStations=ReadStation(file,BaseStations);
     /*
-	for(int i=0;i<NumStations;i++){
-		printBase(&BaseStations[i]);
-	}
+    for(int i=0;i<NumStations;i++){
+        printBase(&BaseStations[i]);
+    }
     */
     /* Create the listener socket as TCP socket (SOCK_STREAM) */
     struct sockaddr_in server;
@@ -539,9 +509,9 @@ int main(int argc,char* argv[]){
 
 
     
-	 for(int i=0;i<NumStations;i++){
-	 	freeStation(&BaseStations[i]);
-	 }
+     for(int i=0;i<NumStations;i++){
+        freeStation(&BaseStations[i]);
+     }
      free(BaseStation);
      for(int i=0;i<MAX_USER_NUM;i++){
         free_client(clients[i]);
@@ -549,6 +519,6 @@ int main(int argc,char* argv[]){
      free(clients);
 
      
-	return 0;
+    return 0;
 
 }

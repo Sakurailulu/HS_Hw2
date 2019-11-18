@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#define MAX 128
+#define MAX 1024
 //from our lab6 code
 
 
@@ -79,3 +79,46 @@ void Where_command(char* temp, char* TargetId){
 	strcpy(temp, "WHERE ");
 	strcat(temp, TargetId);
 }
+
+
+int main(int argc, char *argv[]){
+	char client_Id[MAX];
+	int port = atoi(argv[2]);
+	char* client_Id = argv[3]; //**************
+	float client_Range = atoi(argv[4]);
+	float client_XPos = atoi(argv[5]);
+	float client_YPos = atoi(argv[6]);
+	
+	//find ip address
+	char hostAddr[256];
+	find_IP(hostAddr,argv[1]); //**************
+
+	//initialize client socket
+	int sockfd;
+	
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
