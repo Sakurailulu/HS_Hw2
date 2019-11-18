@@ -95,7 +95,23 @@ int main(int argc, char *argv[]){
 
 	//initialize client socket
 	int sockfd;
-	
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0))== -1){
+		perror("Create socket failed\n");
+		exit(EXIT_FAILURE);//********
+	}//******could add else statement when create server successful
+
+	struct sockaddr_in clientaddr;
+	bzero(&clientaddr, sizeof(clientaddr));
+	// link port, addr
+    servaddr.sin_family = AF_INET; 
+    servaddr.sin_port = htons(port); 
+    servaddr.sin_addr.s_addr = inet_addr(hostAddr); 
+
+  	if ( connect(sockfd, (struct sockaddr *)&clientaddr, sizeof(clientaddr)) != 0 ){
+        perror("Connect to server failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
 
 
 
