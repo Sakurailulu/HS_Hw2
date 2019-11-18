@@ -17,7 +17,7 @@
 
 #define BUFFER_SIZE 1024
 struct DataMessage{
- char[BUFFER_SIZE] Message;
+ 
  char[BUFFER_SIZE] OriginID;
  char[BUFFER_SIZE] NextID;
  char[BUFFER_SIZE] DestinationID;
