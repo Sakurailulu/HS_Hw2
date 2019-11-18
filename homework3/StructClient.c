@@ -24,6 +24,7 @@ void initial_client(struct Client client){
         clients[i].sockfd = -1;
         clients[i].XPos = -1;
         clients[i].YPos = -1;
+        clients[i].Range=-1;
 }
 /*
 *function to free client after used

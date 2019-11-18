@@ -22,6 +22,7 @@ struct Client{
 	char* ID;
 	float XPos;
 	float YPos;
+	float Range;
     int sockfd;
 };
 void initial_client(struct Client client);
