@@ -175,11 +175,265 @@ int Set_Socket(int port){
 *helper function to calculate the distance between two point 
 *such as distance between two sensors and  between sensor and base station
 **/
-/*
 float Cal_distance(float x1, float y1,float x2,float y2){
 return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
-*/
+
+
+
+int sendData(char* command, int NumStations, struct BaseStations* BaseStations, struct Client* clients, struct DataMessage* message){
+    
+    // return 0 if control --> client
+    // return 1 if base --> client
+    // return 2 if base --> base
+    // return 3 if cannot find next legal client
+    int flag= 0;
+    char word[BUFFER_SIZE];
+    int count=0;
+    int temp=0;
+    if(command[strlen(command)-1]!='\n'){
+        strcat(command,"\n");
+    }
+    int curr=0;
+    for(int i=0;i<strlen(command);i++){
+        if( command[i]==' '|| command[i]=='\n'){
+            if(count==0){
+                if(strcmp(word,"SENDDATA")!=0){
+                    flag=3;
+                    return flag;
+                }
+            }
+            else if(count==1){
+                strcpy(dataMessage.OriginID,word);
+            }
+            else if(count==2){
+                strcpy(dataMessage.NextID,word);
+            }
+            else if(count==3){
+                strcpy(dataMessage.destinationID,word);    
+            }
+            else if(count==4){
+                dataMessage.HopListLength=atoi(word);
+                dataMessage.ListofLinks=(char**)malloc(dataMessage.HopListLength*sizeof(char*));
+            }
+            else{
+                        dataMessage.HopList[curr] = (char*)malloc(sizeof(char));
+                        strcpy( dataMessage.HopList[curr],word);
+                        curr++;
+             
+            }
+            count++;
+            memset(word,0, sizeof(char*));
+            temp=0;
+           
+        }
+        else{
+            word[temp]=message[i];
+            temp++;
+        }
+
+
+    int* spaceList = getAllSpace(command, strlen(command));
+    if (spaceList[0] == -1){
+        return msgFlag;
+    }
+    char origin[BUFFER_SIZE];
+    char dest[BUFFER_SIZE];
+
+    substr(command, 0, spaceList[0], origin);
+    
+    if(strcmp(origin, "SENDDATA") != 0)
+        return msgFlag;
+    
+    substr(command, spaceList[0]+1, spaceList[1], origin);
+    substr(command, spaceList[1]+1, strlen(command), dest);
+    free(spaceList);
+    // printf("COMMAND: SENDDATA %s %s\n", origin, dest );
+    strcpy(message->originID, origin);
+    strcpy(message->destinationID, dest);
+    strcpy(message->nextID, "123");
+
+    if (strcmp(origin, "CONTROL") == 0){
+        msgFlag = 1;
+        message->hopListLength = 0;
+    }else{
+        msgFlag = 3;
+        for (int i = 0; i < nBase; ++i){
+            if (strcmp(dest, baseList[i]->baseID) == 0){
+                msgFlag = 2;
+            }
+        }
+        strcpy(message->hopList[message->hopListLength], origin);
+        message->hopListLength = 1;
+    }
+
+    float destX = 0;
+    float destY = 0;
+    float minDist = 999999;
+    char next[BUFFER_SIZE];
+    for (int i = 0; i < nBase; ++i){
+        if (strcmp(dest, baseList[i]->baseID) == 0){
+            destX = baseList[i]->xPos;
+            destY = baseList[i]->yPos;
+        }
+    }
+
+    for (int i = 0; i < MAX_USER_NUM; ++i){
+        if (strcmp(dest, clients[i].userName) == 0){
+            destX = clients[i].xPos;
+            destY = clients[i].yPos;
+        }
+    }
+
+    int nextIsBase = 0;
+
+    if (msgFlag == 1){
+        // if origin is CONTROL, find the closest base to dest
+        for (int i = 0; i < nBase; ++i){
+            float currDist = disBetween(baseList[i]->xPos, baseList[i]->yPos
+                                        , destX, destY);
+            if (currDist < minDist){
+                nextIsBase = 1;
+                minDist = currDist;
+                strcpy(next, baseList[i]->baseID);
+            }
+        }
+        strcpy(message->nextID, next);
+    }else {
+        // otherwise get the (x, y) of origin first, then find the closest reachable
+        // node to dest
+        float startX = 0;
+        float startY = 0;
+        // for each linked base of origin base
+        for (int i = 0; i < nBase; ++i){
+            if (strcmp(origin, baseList[i]->baseID) == 0){
+                // compare distance from each linked base to dest
+                // the shortest one is the next base
+                startX = baseList[i]->xPos;
+                startY = baseList[i]->yPos;
+                for(int j = 0; j < baseList[i]->nLinks; j++){
+                    for (int k = 0; k < nBase; ++k){
+                        if (strcmp(baseList[k]->baseID, baseList[i]->listLinks[j]) == 0){
+                            float currDist = disBetween(baseList[k]->xPos, baseList[k]->yPos,
+                                                     destX, destY);
+                            if(currDist < minDist){
+                                nextIsBase = 1;
+                                minDist = currDist;
+                                strcpy(next, baseList[k]->baseID);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // then for each reachable client sensor in range:
+        for (int i = 0; i < MAX_USER_NUM; ++i){
+            if (clients[i].clientSd != -1 && clients[i].userName[0] != '\0'){
+                if(disBetween(clients[i].xPos, clients[i].yPos, startX, startY)
+                   <= clients->range){
+                    // if current sensor legal and in range
+                    float currDist = disBetween(clients[i].xPos, clients[i].yPos, destX, destY);
+                    if (currDist < minDist){
+                        nextIsBase = 0;
+                        minDist = currDist;
+                        strcpy(next, clients[i].userName);
+                    }
+                }
+            }
+        }
+        strcpy(message->nextID, next);
+    }
+    
+    // handle internal message transprot
+    char currentBase[BUFFER_SIZE];
+    int fullFlag = 1;
+    while(nextIsBase){
+        strcpy(currentBase, message->nextID);
+
+
+        float startX = 0;
+        float startY = 0;
+        // for each linked base of origin base
+        for (int i = 0; i < nBase; ++i){
+            if (strcmp(origin, baseList[i]->baseID) == 0){
+                // compare distance from each linked base to dest
+                // the shortest one is the next base
+                startX = baseList[i]->xPos;
+                startY = baseList[i]->yPos;
+                for(int j = 0; j < baseList[i]->nLinks; j++){
+                    for (int k = 0; k < nBase; ++k){
+                        if (strcmp(baseList[k]->baseID, baseList[i]->listLinks[j]) == 0){
+                            float currDist = disBetween(baseList[k]->xPos, baseList[k]->yPos,
+                                                     destX, destY);
+                            int legal = 1;
+                            // if this base not in hopList
+                            for (int z = 0; z < message->hopListLength; ++z){
+                                if (strcmp(message->hopList[z], baseList[k]->baseID) == 0){
+                                    legal = 0;
+                                }
+                            }
+
+
+                            if(currDist < minDist && legal){
+                                fullFlag = 0;
+                                nextIsBase = 1;
+                                minDist = currDist;
+                                strcpy(next, baseList[k]->baseID);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // then for each reachable client sensor in range:
+        for (int i = 0; i < MAX_USER_NUM; ++i){
+            if (clients[i].clientSd != -1 && clients[i].userName[0] != '\0'){
+                if(disBetween(clients[i].xPos, clients[i].yPos, startX, startY)
+                    <= clients->range){
+                    // if current sensor legal and in range(not in the hopList)
+                    int legal = 1;
+                    for (int z = 0; z < message->hopListLength; ++z){
+                        if (strcmp(message->hopList[z], clients[i].userName) == 0){
+                                legal = 0;
+                            }
+                        }
+
+                    float currDist = disBetween(clients[i].xPos, clients[i].yPos, destX, destY);
+                    if (currDist < minDist && legal){
+                        fullFlag = 0;
+                        nextIsBase = 0;
+                        minDist = currDist;
+                        strcpy(next, clients[i].userName);
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+        if(fullFlag){
+            printf("%s: Message from %s to %s could not be delivered.\n",
+                    currentBase, message->originID, message->destinationID);
+            msgFlag = 0;
+            break;
+        }
+        else{    
+            printf("%s: Message from %s to %s being forwarded through %s\n",
+                    currentBase, message->originID, message->destinationID, currentBase);
+            strcpy(message->nextID, next);
+            strcpy(message->hopList[message->hopListLength], currentBase);
+            message->hopListLength++;
+        }
+    }
+
+    return msgFlag;
+}
+
 int main(int argc,char* argv[]){
     // prepare base info
     if (argc != 3){
@@ -266,7 +520,7 @@ int main(int argc,char* argv[]){
             // other commands:
             else{
                 struct DataMessage* message = initial_Message();
-                int success = sendData(command, nBase, baseList, clients, message);
+                int success = sendData(command, NumStations, BaseStations, clients, message);
                 if(success == 0){
                     printf("CONTROL: Invalid Command\n");
                 }else{

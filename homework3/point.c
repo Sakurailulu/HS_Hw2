@@ -45,6 +45,8 @@ int loadPoint(char* message,struct Point** points){
         if( message[i]==' '|| message[i]=='\n'){
             if(count==0){
                 count++;
+                memset(word,0, sizeof(char*));
+            	temp=0;  
                 continue;
             }
             else if(count==1){
