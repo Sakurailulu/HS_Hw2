@@ -29,4 +29,5 @@ void initial_client(struct Client client);
 void free_client(struct Client client);
 int max_socket(const struct Client* clients,int TCP_fd);
 fd_set selectOnSockets(const struct Client* clients, int TCP_fd);
-//still need a handle client need to implement.  dropbox 里面的这个function不齐全暂时不炼金了
+
+

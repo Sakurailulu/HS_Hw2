@@ -193,23 +193,24 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
     // return 2 if base --> base
     // return 3 if cannot find next legal client
     int flag= 0;
-    char word[BUFFER_SIZE];
-    char origin[BUFFER_SIZE];
-    char destination[BUFFER_SIZE];
+    char* word=(char*)malloc(BUFFER_SIZE*sizeof(char));
+    char* origin=(char*)malloc(BUFFER_SIZE*sizeof(char));
+    char* destination=(char*)malloc(BUFFER_SIZE*sizeof(char));
+    //read the command from input(stdin) 
     int count=0;
     int temp=0;
-    if(command[strlen(command)-1]!='\n'){
-        strcat(command,"\n");
-    }
     int curr=0;
     for(int i=0;i<strlen(command);i++){
         if( command[i]==' '|| command[i]=='\n'){
             if(count==0){
                 if(strcmp(word,"SENDDATA")!=0){
                     flag=3;
+                    memset(word,0, BUFFER_SIZE*sizeof(char));
+                    temp=0;  
                     return flag;
                 }
             }
+            //if the command from input is send data, store the origin and destination to prepare for creating DataMessage 
             else if(count==1){
                 strcpy(origin,word);
             }
@@ -217,7 +218,7 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
                 strcpy(destination,word);
             }
             count++;
-            memset(word,0, sizeof(char*));
+            memset(word,0, BUFFER_SIZE*sizeof(char));
             temp=0;           
         }
         else{
@@ -225,6 +226,7 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
             temp++;
         }
     }
+    //set the Origin ID, DestinationID for new data message
     strcpy(message->OriginID,origin);
     strcpy(message->DestinationID,destination);
     strcpy(message->NextID,"default");
@@ -233,6 +235,7 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
         message->HopListLength = 0;
     }else{
          flag= 1;
+         //check if is base to base
         for (int i = 0; i < NumStations; ++i){
             if (strcmp(destination,BaseStations[i].ID) == 0){
                 flag= 2;
@@ -241,18 +244,19 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
         strcpy(message->HopList[message->HopListLength], origin);
         message->HopListLength ++;
     }
-
+    //ready to find which is nextID
     float destinationX = 0;
     float destinationY = 0;
     float minDistance = 999999;
     char Nextid[BUFFER_SIZE];
+    //first go through all the basestations to find the destination
     for (int i = 0; i < NumStations; i++){
         if (strcmp(destination, BaseStations[i].ID) == 0){
             destinationX = BaseStations[i].XPos;
             destinationY = BaseStations[i].YPos;
         }
     }
-
+    //then go through all the clients to find the destination
     for (int i = 0; i < MAX_USER_NUM; ++i){
         if (strcmp(destination, clients[i].ID) == 0){
             destinationX = clients[i].XPos;
@@ -371,7 +375,7 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
                                 legal = 0;
                             }
                         }
-
+                    //calculate minimal distance 
                     float currDistance = Cal_distance(clients[i].XPos, destinationX, clients[i].YPos, destinationY);
                     if (currDistance < minDistance && legal){
                         Flag = 0;
@@ -402,6 +406,8 @@ int sendData(char* command, int NumStations, struct BaseStation* BaseStations, s
             message->HopListLength++;
         }
     }
+    memset(origin,0, BUFFER_SIZE*sizeof(char));
+    memset(destination,0, BUFFER_SIZE*sizeof(char));
 
     return Flag;
 }
@@ -420,22 +426,22 @@ int main(int argc,char* argv[]){
     int NumStations=ReadStation(file,BaseStations);
 
 
-    char message[BUFFER_SIZE] = 
-    "DATAMESSAGE [OriginID] [NextID] [DestinationID] 4 A B C D";
+    // char message[BUFFER_SIZE] = 
+    // "DATAMESSAGE [OriginID] [NextID] [DestinationID] 4 A B C D";
 
-    struct DataMessage* data = initial_Message();
-    LoadMessage(message, data);
-    char output[BUFFER_SIZE];
-    ConvertMessage(data, output);
+    // struct DataMessage* data = initial_Message();
+    // LoadMessage(message, data);
+    // char output[BUFFER_SIZE];
+    // ConvertMessage(data, output);
 
-    printf("oringinal message is : %s\n", message);
-    printf("After message is : %s\n", output);
-    freeDataMessage(data);
+    // printf("oringinal message is : %s\n", message);
+    // printf("After message is : %s\n", output);
+    // freeDataMessage(data);
 
     
-    for(int i=0;i<NumStations;i++){
-        printBase(&BaseStations[i]);
-    }
+    // for(int i=0;i<NumStations;i++){
+    //     printBase(&BaseStations[i]);
+    // }
     
     /* Create the listener socket as TCP socket (SOCK_STREAM) */
     struct sockaddr_in server;

@@ -51,3 +51,4 @@ fd_set selectOnSockets(const struct Client* clients, int TCP_fd)
     select(max_socket(clients,TCP_fd)+1, &set, NULL, NULL, NULL);
     return set;
 }
+
