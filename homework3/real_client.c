@@ -95,8 +95,8 @@ void Where_command(char* temp, char* TargetId){
 
 int main(int argc, char *argv[]){
 	char client_Id[MAX];
+  strcpy(client_Id,argv[3]);
 	int port = atoi(argv[2]);
-	char* client_Id = argv[3]; //**************
 	float client_Range = atoi(argv[4]);
 	float client_XPos = atoi(argv[5]);
 	float client_YPos = atoi(argv[6]);

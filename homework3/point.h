@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #include <math.h>
-#include "DataMessage.h"
+
 
 #define BUFFER_SIZE 1024
 
@@ -23,9 +23,9 @@ struct Point{
 };
 
 struct Point* initial_point();
-struct Point** loadPoint(char* message,int* NumReachable);
+int loadPoint(char* message,struct Point** points);
 void freePoint(struct Point* point);
-void freePoints(struct Point** point, int length);
+void freePoints(struct Point** points, int length);
 
 
 
