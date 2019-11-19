@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #include <math.h>
-#include "DataMessage.h"
+
 
 #define BUFFER_SIZE 1024
 #define MAX_USER_NUM 64
@@ -27,5 +27,6 @@ struct Client{
 };
 void initial_client(struct Client client);
 void free_client(struct Client client);
-fd_set selectOnSockets(const struct client* clients, int TCP_fd);
+int max_socket(const struct Client* clients,int TCP_fd);
+fd_set selectOnSockets(const struct Client* clients, int TCP_fd);
 //still need a handle client need to implement.  dropbox 里面的这个function不齐全暂时不炼金了

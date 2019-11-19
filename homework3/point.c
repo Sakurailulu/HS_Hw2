@@ -32,7 +32,7 @@ struct Point* initial_point(){
 */
 struct Point** loadPoint(char* message,int* NumReachable){
 //REACHABLE [NumReachable] [ReachableList]([ID] [XPosition] [YPosition]) 
-    char word[BUFFER_SIZE];
+    char* word=(char*)malloc(BUFFER_SIZE*sizeof(char));
     int count=0;
     int temp=0;
     int innercount=0;
@@ -45,7 +45,7 @@ struct Point** loadPoint(char* message,int* NumReachable){
         if( message[i]==' '|| message[i]=='\n'){
             if(count==0){
                 count++;
-                memset(word,0, sizeof(char*));
+                memset(word,0, BUFFER_SIZE*sizeof(char));
                 temp=0;  
                 continue;
             }
@@ -72,7 +72,7 @@ struct Point** loadPoint(char* message,int* NumReachable){
 
             }
             count++;
-            memset(word,0, sizeof(char*));
+            memset(word,0, BUFFER_SIZE*sizeof(char));
             temp=0;           
         }
         else{
@@ -80,6 +80,7 @@ struct Point** loadPoint(char* message,int* NumReachable){
             temp++;
         }
     }
+    free(word);
     return points;
 }
 void freePoint(struct Point* point){

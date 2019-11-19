@@ -1,19 +1,22 @@
 //assignment3 for network programming、
 //this is the server for assignment3
 
-#include <stdio.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <sys/select.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/select.h>
-#include <time.h>
+#include <netdb.h>
 #include <sys/types.h>
-#include <stdarg.h>
+#include <sys/socket.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <strings.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <stdbool.h> 
+#include <signal.h>
 #include <math.h>
+#include <stdbool.h>
+
 #include "DataMessage.h"
 #include "StructClient.h"
 
@@ -71,7 +74,7 @@ void freeStation(struct BaseStation* station){
  struct BaseStation LoadStation(char* line){
     struct BaseStation station; 
     initial_Station(&station);
-    char word[BUFFER_SIZE];
+    char* word=(char*)malloc(BUFFER_SIZE*sizeof(char));
     int count=0;
     int temp=0;
     if(line[strlen(line)-1]!='\n'){
@@ -80,6 +83,7 @@ void freeStation(struct BaseStation* station){
     int curr=0;
     for(int i=0;i<strlen(line);i++){
         if( line[i]==' '|| line[i]=='\n'){
+
             if(count==0){
                 strcpy(station.ID,word);
             }
@@ -100,7 +104,7 @@ void freeStation(struct BaseStation* station){
              
             }
             count++;
-            memset(word,0, sizeof(char*));
+            memset(word,0, BUFFER_SIZE*sizeof(char));
             temp=0;
            
         }
@@ -111,6 +115,7 @@ void freeStation(struct BaseStation* station){
 
 
     }
+    memset(word,0, sizeof(char*));
     return station;
  }
 /**
@@ -129,7 +134,7 @@ int ReadStation(char* file,struct BaseStation* BaseStations){
     char line[BUFFER_SIZE];
     int index=0;
     while (fgets(line,BUFFER_SIZE,fp) != NULL) {
-        BaseStations[index]=LoadStation(line);
+        BaseStations[index]=LoadStation(line); 
         index++;
     }
     fclose(fp);
@@ -176,12 +181,12 @@ int Set_Socket(int port){
 *such as distance between two sensors and  between sensor and base station
 **/
 float Cal_distance(float x1, float y1,float x2,float y2){
-return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+return (float)sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
 
 
 
-int sendData(char* command, int NumStations, struct BaseStations* BaseStations, struct Client* clients, struct DataMessage* message){
+int sendData(char* command, int NumStations, struct BaseStation* BaseStations, struct Client* clients, struct DataMessage* message){
     
     // return 0 if control --> client
     // return 1 if base --> client
@@ -229,7 +234,7 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
     }else{
          flag= 1;
         for (int i = 0; i < NumStations; ++i){
-            if (strcmp(dest,BaseStations[i]->ID) == 0){
+            if (strcmp(destination,BaseStations[i].ID) == 0){
                 flag= 2;
             }
         }
@@ -242,9 +247,9 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
     float minDistance = 999999;
     char Nextid[BUFFER_SIZE];
     for (int i = 0; i < NumStations; i++){
-        if (strcmp(destination, BaseStations[i]->ID) == 0){
-            destinationX = BaseStations[i]->XPos;
-            destinationY = BaseStations[i]->YPos;
+        if (strcmp(destination, BaseStations[i].ID) == 0){
+            destinationX = BaseStations[i].XPos;
+            destinationY = BaseStations[i].YPos;
         }
     }
 
@@ -260,11 +265,11 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
     if (flag == 0){
         // if origin is CONTROL, find the closest base to dest
         for (int i = 0; i < NumStations; i++){
-            float currDistance = Cal_distance(BaseStations[i]->XPos, destinationX,BaseStations[i]->YPos,destinationY);
+            float currDistance = Cal_distance(BaseStations[i].XPos, destinationX,BaseStations[i].YPos,destinationY);
             if (currDistance < minDistance){
                 NextBase= true;
-                minDisance = currDistance;
-                strcpy(Nextid, BaseStations[i]->ID);
+                minDistance = currDistance;
+                strcpy(Nextid, BaseStations[i].ID);
             }
         }
         strcpy(message->NextID, Nextid);
@@ -275,19 +280,19 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
         float OriginY = 0;
         // for each linked base of origin base
         for (int i = 0; i < NumStations; ++i){
-            if (strcmp(origin, BaseStations[i]->ID) == 0){
+            if (strcmp(origin, BaseStations[i].ID) == 0){
                 // compare distance from each linked base to dest
                 // the shortest one is the next base
-                OriginX = BaseStations[i]->XPos;
-                OriginY = BaseStations[i]->YPos;
-                for(int j = 0; j < BaseStations[i]->NumLinks; j++){
+                OriginX = BaseStations[i].XPos;
+                OriginY = BaseStations[i].YPos;
+                for(int j = 0; j < BaseStations[i].NumLinks; j++){
                     for (int k = 0; k < NumStations; ++k){
-                        if (strcmp(BaseStations[k]->ID, BaseStations[i]->ListofLinks[j]) == 0){
-                            float currDistance = Cal_distance(BaseStations[k]->XPos,destinationX, BaseStations[k]->YPos,destinationY);
+                        if (strcmp(BaseStations[k].ID, BaseStations[i].ListofLinks[j]) == 0){
+                            float currDistance = Cal_distance(BaseStations[k].XPos,destinationX, BaseStations[k].YPos,destinationY);
                             if(currDistance < minDistance){
                                 NextBase = true;
                                 minDistance = currDistance;
-                                strcpy(Nextid, BaseStations[k]->ID);
+                                strcpy(Nextid, BaseStations[k].ID);
                             }
                         }
                     }
@@ -300,7 +305,7 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
                 if(Cal_distance(clients[i].XPos, clients[i].YPos, OriginX, OriginY)
                    <= clients->Range){
                     // if current sensor legal and in range
-                    float currDistance = Cal_distance(clients[i].XPos,destinationX, clients[i].yPos,destinationY);
+                    float currDistance = Cal_distance(clients[i].XPos,destinationX, clients[i].YPos,destinationY);
                     if (currDistance < minDistance){
                         NextBase = 0;
                         minDistance = currDistance;
@@ -323,19 +328,19 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
         float OriginY = 0;
         // for each linked base of origin base
         for (int i = 0; i < NumStations; ++i){
-            if (strcmp(origin, BaseStations[i]->ID) == 0){
+            if (strcmp(origin, BaseStations[i].ID) == 0){
                 // compare distance from each linked base to dest
                 // the shortest one is the next base
-                OriginX = BaseStations[i]->XPos;
-                OriginY = BaseStations[i]->YPos;
-                for(int j = 0; j < BaseStations[i]->NumLinks; j++){
+                OriginX = BaseStations[i].XPos;
+                OriginY = BaseStations[i].YPos;
+                for(int j = 0; j < BaseStations[i].NumLinks; j++){
                     for (int k = 0; k < NumStations; ++k){
-                        if (strcmp(BaseStations[k]->ID, BaseStations[i]->ListofLinks[j]) == 0){
-                            float currDistance = Cal_distance(BaseStations[k]->XPos,destinationX, BaseStations[k]->YPos,destinationY);
+                        if (strcmp(BaseStations[k].ID, BaseStations[i].ListofLinks[j]) == 0){
+                            float currDistance = Cal_distance(BaseStations[k].XPos,destinationX, BaseStations[k].YPos,destinationY);
                             int legal = 1;
                             // if this base not in hopList
                             for (int l = 0; l < message->HopListLength; l++){
-                                if (strcmp(message->HopList[l], BaseStations[l]->ID) == 0){
+                                if (strcmp(message->HopList[l], BaseStations[l].ID) == 0){
                                     legal = 0;
                                 }
                             }
@@ -345,7 +350,7 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
                                 Flag = 0;
                                 NextBase = 1;
                                 minDistance = currDistance;
-                                strcpy(Nextid, BaseStations[k]->ID);
+                                strcpy(Nextid, BaseStations[k].ID);
                             }
                         }
                     }
@@ -367,7 +372,7 @@ int sendData(char* command, int NumStations, struct BaseStations* BaseStations, 
                             }
                         }
 
-                    float currDist = Cal_distance(clients[i].XPos, destinationX, clients[i].YPos, destinationY);
+                    float currDistance = Cal_distance(clients[i].XPos, destinationX, clients[i].YPos, destinationY);
                     if (currDistance < minDistance && legal){
                         Flag = 0;
                         NextBase = 0;
@@ -413,17 +418,31 @@ int main(int argc,char* argv[]){
     char* file=argv[2];
     int socket_fd=Set_Socket(port);
     int NumStations=ReadStation(file,BaseStations);
-    /*
+
+
+    char message[BUFFER_SIZE] = 
+    "DATAMESSAGE [OriginID] [NextID] [DestinationID] 4 A B C D";
+
+    struct DataMessage* data = initial_Message();
+    LoadMessage(message, data);
+    char output[BUFFER_SIZE];
+    ConvertMessage(data, output);
+
+    printf("oringinal message is : %s\n", message);
+    printf("After message is : %s\n", output);
+    freeDataMessage(data);
+
+    
     for(int i=0;i<NumStations;i++){
         printBase(&BaseStations[i]);
     }
-    */
+    
     /* Create the listener socket as TCP socket (SOCK_STREAM) */
     struct sockaddr_in server;
-    int serverSd = initServer(&server, port);
+    int serverSd = Set_Socket(port);
  
     // array of client structure
-    struct Client* clients = (Client*)malloc(MAX_USER_NUM * sizeof(struct Client));
+    struct Client* clients = (struct Client*)malloc(MAX_USER_NUM * sizeof(struct Client));
     for (int i = 0; i < MAX_USER_NUM; ++i){
         initial_client(clients[i]);
     }
@@ -431,19 +450,20 @@ int main(int argc,char* argv[]){
     unsigned int length = sizeof(struct sockaddr_in);
  
     int child_pid = fork();
+    unsigned int len = sizeof(struct sockaddr_in);
     if(child_pid==0){
         //use child to handle the process for TCP server
         while(1){
              fd_set Clients_fd = selectOnSockets(clients, serverSd);
              bool find=false;
-            if (FD_ISSET(serverSd, &fdClients)){
+            if (FD_ISSET(serverSd, &Clients_fd)){
                 for(int i=0;i<MAX_USER_NUM;i++){
                     if(clients[i].socket_fd<0){
-                        clients[i].socket_fd=accept(serverSd, (struct sockaddr *) &server,&sizeof(struct sockaddr_in));
+                        clients[i].socket_fd=accept(serverSd, (struct sockaddr *) &server,&len);
                         if(clients[i].socket_fd<0){
                             fprintf(stderr,"ERROR: Accept failed\n");
                         }
-                        clients[i].id[0] = '\0';
+                        clients[i].ID[0] = '\0';
                         break;
                     }
                 }
@@ -452,16 +472,21 @@ int main(int argc,char* argv[]){
                 }
 
             }
-        }
-        for (int i = 0; i < MAX_USER_NUM; i++){
-            if(clients[i]->socket_fd!=-1&&FD_ISSET(clients[i]->socket_fd, &fdset)){
+                    for (int i = 0; i < MAX_USER_NUM; i++){
+            if(clients[i].socket_fd!=-1&&FD_ISSET(clients[i].socket_fd, &Clients_fd)){
                // handle each connection
-                printf("CONTROL: clientSd is %d\n", currentClient->clientSd);
+                printf("CONTROL: clientSd is %d\n", clients[i].socket_fd);
                 //###############################################################
                 //###############################################################
                 //待补充
             }
         }
+
+
+
+
+        }
+
 
 
     }
@@ -470,7 +495,7 @@ int main(int argc,char* argv[]){
     else{
         //use the parent to handle the output to terminal
         char command[BUFFER_SIZE];
-        while(TRUE){
+        while(true){
               printf("Please Enter command here: ");
             if(fgets(command, sizeof(command), stdin) == NULL){
                 //continue getting command from stdin
@@ -509,7 +534,7 @@ int main(int argc,char* argv[]){
      for(int i=0;i<NumStations;i++){
         freeStation(&BaseStations[i]);
      }
-     free(BaseStation);
+     free(BaseStations);
      for(int i=0;i<MAX_USER_NUM;i++){
         free_client(clients[i]);
      }

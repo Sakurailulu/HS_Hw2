@@ -16,17 +16,18 @@
 
 
 #define BUFFER_SIZE 1024
+
 struct DataMessage{
  
- char[BUFFER_SIZE] OriginID;
- char[BUFFER_SIZE] NextID;
- char[BUFFER_SIZE] DestinationID;
+ char* OriginID;
+ char* NextID;
+ char* DestinationID;
  int HopListLength;
  char** HopList;
-}
+};
 struct DataMessage* initial_Message();
-void LoadMessage(char* message, int size, struct DataMessage* data);
+void LoadMessage(char* message, struct DataMessage* data);
 // load dataMessage from received text
-void convertMessage(struct DataMessage* data, char* message);
+void ConvertMessage(struct DataMessage* data, char* message);
 // convert dataMessage to text form
 void freeDataMessage(struct DataMessage* data);
